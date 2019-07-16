@@ -1,6 +1,6 @@
 #########INTRODUCTION###################
 # Underwater Thresholds for Onset of Permanent and Temporary Threshold Shifts (Version 2.0)
-# Writtiten by Emily Markowitz
+# Writtiten by Emily Markowitz 
 # March 2018 - July 2019
 # written on R version 3.4.1 (2017-06-30) -- "Single Candle"
 # Version 1.0.153 - ? 2009-2017 RStudio, Inc.
