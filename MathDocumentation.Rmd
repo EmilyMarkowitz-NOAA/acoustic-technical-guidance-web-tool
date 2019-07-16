@@ -1,0 +1,908 @@
+---
+title: "NOAA Fisheries Technical Guidance for Assessing the Effects of Anthropogenic Noise on Marine Mammal Hearing"
+author: "Emily Markowitz (Emily.Markowitz@noaa.gov)"
+date: "V1.0"
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+![](./www/NOAA_Logo_Full.jpg "NOAA Logo")
+
+This report was generated on `r {(Sys.time())}`
+
+
+#Load Packages
+
+```{r, echo=T}
+#R Version
+R.Version()
+#Packages
+library(shiny)
+library(knitr)
+library(kableExtra)
+library(magrittr)
+library(dplyr)
+library(kableExtra)
+library(formattable)
+library(shinyjs)
+library(shinyBS)
+require(V8)
+library(DT)
+library(ggplot2)
+library(knitr)
+library(markdown)
+library(shinythemes)
+
+# install.packages("devtools")
+# devtools::install_github("Appsilon/shiny.router")
+# library(shiny.router)
+library(shinydashboard)
+
+# install.packages("shiny.router")
+library(shiny.router)
+#https://www.r-exercises.com/2018/02/05/how-to-use-kableextra-and-rmarkdown-to-create-tables-in-pdf-documents/
+#https://rstudio-pubs-static.s3.amazonaws.com/64889_e0393b1c684943339db6c2331b65b366.html
+
+options(kableExtra.latex.load_packages = FALSE)
+```
+
+#How to use the app, and follow the funcitons
+
+##Step 1 Enter project information for certificate
+* Project title
+* Project/Source Information
+* Assumptions
+* Project Contact
+
+##Step 2 Select your Sound Source/Calculation Method
+Sound source (adds a ".1" on the end of the ID)
+
+* "Impact pile drivers"="E1", 
+* "Vibratory pile drivers"="A1",
+* "Mobile seismic airguns" = "F",
+* "Stationary seismic airguns (e.g., Vertical seismic profiling)" ="E",
+* "Stationary drilling vessels or platforms" = "A",
+* "Stationary sonar or sonar-like source" = "B",
+* "Mobile sonar or sonar-like source" = "D",
+* "Multiple underwater detonations" = "E2",
+* "Single underwater detonation" = "E3"
+
+Source category best represents the source (adds a ".2" on the end of the ID)
+
+* "Non-impulsive , Stationary, Continuous"="A",
+* "Non-impulsive, Stationary, Intermittent"="B",
+* "Non-impulsive, Mobile, Continuous"="C",
+* "Non-impulsive, Mobile, Intermittent"="D",
+* "Impulsive, Stationary"="E", 
+* "Impulsive, Mobile"="F")
+  
+##Step 3 Weighting Factor Adjustment
+Options are: 
+
+* "Narrowband source"="Alter1",
+* "Able to provide 95% frequency contour  (i.e., single frequency weighting factor adjustment) for source"="Alter2",
+* "Relying upon NMFS suggested default  95% frequency contour for source (i.e., single frequency weighting factor adjustment)"="Alter3",
+* "95% frequency contour (i.e., single frequency weighting factor adjustment) unknown and no suggested default available for source (i.e., assume no weighting)"="SourceSpec1",
+* "Relying upon source spectrum and able to provide weighting function amplitude adjustment (dB) by marine mammal hearing group (i.e., override single frequency weighting factor adjustment)"="SourceSpec2"
+   
+Notes:
+
+* Specify if relying on source-specific WFA, alternative weighting/dB adjustment, or if using default value
+* Broadband: 95% frequency contour percentile (kHz) OR Narrowband: frequency (kHz); For appropriate default WFA: See INTRODUCTION tab
+* If a user relies on alternative weighting/dB adjustment rather than relying upon the WFA (source-specific or default), they may override the Adjustment (dB) (row 43), and enter the new value directly. However, they must provide additional support and documentation supporting this modification.
+* BROADBAND Sources: Cannot use WFA higher than maximum applicable frequency (See lightblue tab for more information on WFA applicable frequencies)
+
+# Functions
+
+## Weighting 
+
+$$W(f) = C + 10*log_{10} \frac{(f/f_1)^{2a}}{[1+(f/f_1)^2]^a [1+(f/f_1)^2]^b} $$
+
+```{r}
+fill.weigthtfuncttable<-function(WeightFactorAdjustment_kHz, weigthtfuncttable){
+  for (i in 1:ncol(weigthtfuncttable)){
+    weigthtfuncttable["note1",i]<-
+      ((WeightFactorAdjustment_kHz / weigthtfuncttable["f1",i] )^(2*weigthtfuncttable["a",i]))
+    weigthtfuncttable["note2",i]<-
+      (1+(WeightFactorAdjustment_kHz/weigthtfuncttable["f1",i])^2)^weigthtfuncttable["a",i]
+    weigthtfuncttable["note3",i]<-
+      (1+(WeightFactorAdjustment_kHz/weigthtfuncttable["f2",i])^2)^weigthtfuncttable["b",i]
+    weigthtfuncttable["note4",i]<-
+      weigthtfuncttable["note1",i]/(weigthtfuncttable["note2",i]*weigthtfuncttable["note3",i])
+    weigthtfuncttable["Adjustment (-dB)",i]<-
+      (log10(weigthtfuncttable["note4",i])*10)+weigthtfuncttable["C",i]
+  }
+  return(weigthtfuncttable)
+}
+```
+
+```{r, echo=TRUE}
+fill.weigthtfuncttable2<-function(WeightFactorAdjustment_kHz, weigthtfuncttable, 
+                                  ui1w10, ui1w20, ui1w30, ui1w40, ui1w50, 
+                                  howtoweight_broad){
+  weigthtfuncttable<-matrix(data = c(1,1.6, 1.8, 1,2,
+                                     2,2,2,2,2,
+                                     0.2, 8.8, 12,1.9,.94,
+                                     19,110,140,30,25,
+                                     0.13, 1.2, 1.36, 0.75, 0.64,
+                                     rep_len(x = NA, length.out = (5*5))),
+                            nrow = 10, ncol = 5, byrow = T)
+  weigthtfuncttable<-as.data.frame(weigthtfuncttable)
+  rownames(weigthtfuncttable)<-c("a", "b", "f1", "f2", "C", "Adjustment (-dB)", "note1", "note2", "note3", "note4")
+  if (howtoweight_broad=="Alter" | howtoweight_broad=="Alter1" | howtoweight_broad=="Alter2" | howtoweight_broad=="Alter3") {
+    weigthtfuncttable<-fill.weigthtfuncttable(WeightFactorAdjustment_kHz, weigthtfuncttable)
+  } else if (howtoweight_broad=="SourceSpec" | howtoweight_broad=="SourceSpec1" | howtoweight_broad=="SourceSpec2") {
+    weigthtfuncttable["Adjustment (-dB)",]<-c(ui1w10, ui1w20, ui1w30, ui1w40, ui1w50)
+  }
+  return(weigthtfuncttable)
+}
+
+```
+
+## Calculating Isopleths
+```{r, echo=TRUE}
+
+fill.userout<-function(SourceLevel_RMS_SPL=1, 
+                       durationofsoundproduction_hrswithin24hrperiod=0,
+                       durationofsoundproduction_sec=0,
+                       LogDurationOfSoundProductionx10=0,
+                       Propogation_xLogR=1,
+                       userout.blank0,
+                       weigthtfuncttable=weigthtfuncttable,
+                       type=type,
+                       SourceFactor=0,
+                       SourceVelocity_m_sec=0,
+                       SourceLevel_PK_SPL=1, 
+                       LogNumberOfPulsesx10=0,
+                       NumberOfPulses_24hrs=0,
+                       SourceLevel_SingleShotSEL=0,
+                       distancefromsourcelevelmeasurement_m=0,
+                       distancefromsourcelevelmeasurement_m_RMS=0,
+                       distancefromsourcelevelmeasurement_m_PK=0,
+                       SourceLevel_1meter=0,
+                       UnweightedSELcum_atmeasureddistance=0) {
+  
+  userout.b<-userout.blank0
+  forNA <- NA#99999999
+  forNA1<-"NA"#"WFA > Source Level"
+  
+  if (type=="A.1" | type=="B.1" | type=="B.2") {
+    #####A.1, B.1, B.2####
+    for (i in 1:ncol(userout.b)){
+      userout.b[2,i]<-(10^(((SourceLevel_RMS_SPL+
+                               weigthtfuncttable["Adjustment (dB)",i]) + 
+                              LogDurationOfSoundProductionx10-
+                              userout.b[1,i])/Propogation_xLogR) )
+    }
+  } else if (type=="A1.1"){
+    #####A1.1####
+    for (i in 1:ncol(userout.b)){
+      userout.b[2,i]<-distancefromsourcelevelmeasurement_m*10^(
+        ((SourceLevel_RMS_SPL+weigthtfuncttable["Adjustment (dB)",i]) + 
+           LogDurationOfSoundProductionx10-userout.b[1,i])/Propogation_xLogR)
+    }
+  } else if (type=="C.1" | type=="D.1"| type=="D.2") { 
+    #####C.1, D.1, D.2#######
+    for (i in 1:ncol(userout.b)){
+      userout.b[2,i]<-(SourceFactor*pi)/
+        (10^((userout.b[1,i] - 
+                weigthtfuncttable["Adjustment (dB)",i])/10)*
+           SourceVelocity_m_sec)
+    }
+  } else if (type=="E.1" | type=="E.2") {
+    ####E.1, E.2####
+    if (type=="E.1") {
+      ####E.1####
+      for (i in 1:ncol(userout.b)){
+        userout.b[2,i]<-10^((SourceLevel_RMS_SPL+
+                               LogDurationOfSoundProductionx10+
+                               weigthtfuncttable["Adjustment (dB)",i] - userout.b[1,i])/
+                              Propogation_xLogR)
+        ####forNA###
+        if (is.na(SourceLevel_PK_SPL)) {
+          userout.b<-userout.blank0
+        } else if (SourceLevel_PK_SPL>userout.b[3,i]) {
+          userout.b[4,i]<-10^((SourceLevel_PK_SPL-userout.b[3,i])/Propogation_xLogR)
+        } else {
+          userout.b[4,i]<-forNA
+        }
+      }
+    }
+  } else if (type=="E.2") {
+    ####E.2####
+    for (i in 1:ncol(userout.b)){
+      userout.b[2,i]<-10^((SourceLevel_SingleShotSEL+
+                             weigthtfuncttable["Adjustment (dB)",i] +
+                             LogNumberOfPulsesx10-
+                             userout.b[1,i])/Propogation_xLogR)
+      if (is.na(SourceLevel_PK_SPL)) {
+      userout.b<-userout.blank0
+      } else if (SourceLevel_PK_SPL>userout.b[3,i]) {
+        ####forNA####
+        userout.b[4,i]<-10^((SourceLevel_PK_SPL-userout.b[3,i])/Propogation_xLogR)
+      } else {
+        userout.b[4,i]<-forNA
+      }
+    }
+    #E1
+  } else if (type=="E1.1" | type=="E1.2"){
+    ####E1.1, E1.2####
+    if (type=="E1.1") {
+      #####E1.1#####
+      for (i in 1:ncol(userout.b)){
+        userout.b[2,i]<-distancefromsourcelevelmeasurement_m_RMS*
+          10^(((SourceLevel_RMS_SPL+
+                  weigthtfuncttable["Adjustment (dB)",i])+
+                 LogDurationOfSoundProductionx10-
+                 userout.b[1,i])/Propogation_xLogR)
+      }
+    } else if (type=="E1.2") {
+      ######E1.2######
+      for (i in 1:ncol(userout.b)){
+        userout.b[2,i]<-distancefromsourcelevelmeasurement_m_RMS*
+          10^(((UnweightedSELcum_atmeasureddistance+
+                  weigthtfuncttable["Adjustment (dB)",i])-
+                 userout.b[1,i])/
+                Propogation_xLogR)
+      }}
+    for (i in 1:ncol(userout.b)){
+      ####forNA####
+      if (is.na(SourceLevel_1meter)) {
+        userout.b<-userout.blank0
+      } else if (SourceLevel_1meter>userout.b[3,i]) {
+        userout.b[4,i]<-distancefromsourcelevelmeasurement_m_PK*
+          10^((SourceLevel_PK_SPL-userout.b[3,i])/
+                Propogation_xLogR)
+      } else {userout.b[4,i]<-forNA} #sub ifelse
+    }
+  } else if (type=="E2.1" | type=="E2.2"){
+    ####E2.1, E2.2####
+    for (j in c(1,5,9)){
+      for (i in 1:ncol(userout.b)){
+        userout.b[j+1,i]<-10^(((SourceLevel_RMS_SPL+
+                                  weigthtfuncttable["Adjustment (dB)",i])+
+                                 LogDurationOfSoundProductionx10-
+                                 userout.b[j,i])/
+                                Propogation_xLogR)
+      }}
+    for (j in c(3,7)){
+      for (i in 1:ncol(userout.b)){
+        if (SourceLevel_PK_SPL>userout.b[j,i]) {
+          userout.b[j+1,i]<-10^((SourceLevel_PK_SPL-userout.b[j,i])/
+                                  Propogation_xLogR)
+        } else {
+          userout.b[j+1,i]<-forNA} #sub ifelse
+      }}
+  } else if (type=="E3.1" | type=="E3.2") {
+    ######E3.1, E3.2##########
+    if (type=="E3.1") {
+      ####E3.1#####
+      for (j in c(1,5)){
+        for (i in 1:ncol(userout.b)){
+          userout.b[j+1,i]<-10^((SourceLevel_RMS_SPL+
+                                   weigthtfuncttable["Adjustment (dB)",i]+
+                                   LogDurationOfSoundProductionx10-
+                                   userout.b[j,i])/
+                                  Propogation_xLogR)
+        }}
+    } else if (type=="E3.2") {
+      #####E3.2#####
+      for (j in c(1,5)){
+        for (i in 1:ncol(userout.b)){
+          userout.b[j+1,i]<-10^((SourceLevel_RMS_SPL+
+                                   weigthtfuncttable["Adjustment (dB)",i]-
+                                   userout.b[j,i])/
+                                  Propogation_xLogR)
+        }}}
+    ####forNA####
+    for (j in c(3,7)){
+      for (i in 1:ncol(userout.b)){
+        if (is.na(SourceLevel_PK_SPL)) {
+          userout.b<-userout.blank0
+        } else if (SourceLevel_PK_SPL>userout.b[j,i]) {
+          userout.b[j+1,i]<-10^((SourceLevel_PK_SPL-userout.b[j,i])/
+                                  Propogation_xLogR)
+        } else {userout.b[j+1,i]<-forNA} #sub ifelse
+      }}
+  } else if (type=="F.1" | type=="F.2") {
+    ####F.1, F.2####
+    for (i in 1:ncol(userout.b)){
+      userout.b[2,i]<-(SourceFactor*pi)/
+        (10^((userout.b[1,i]-
+                weigthtfuncttable["Adjustment (dB)",i])/10)*
+           SourceVelocity_m_sec)
+    }
+    for (i in 1:ncol(userout.b)){
+      ####forNA####
+      if (is.na(SourceLevel_PK_SPL)) {
+        userout.b<-userout.blank0
+      } else if (SourceLevel_PK_SPL>userout.b[3,i]) {
+        userout.b[4,i]<-10^(
+          (SourceLevel_PK_SPL-userout.b[3,i])/20)
+      } else {userout.b[4,i]<-forNA} #sub ifelse
+    }
+  } 
+  
+  ####Make the output nice
+  userout.b0<-userout.b
+    #as.data.frame(matrix(data = rep_len(NA, nrow(userout.b)*ncol(userout.b)), 
+              #                     nrow=nrow(userout.b)))
+  
+  for (i in seq(from = 2, to = nrow(userout.b), by = 2) ) {
+    for (j in 1:ncol(userout.b)){
+      userout.b0[i,j]<-HTML(paste0("<b>", decimalplaces(userout.b[i,j], 1), "</b>"))
+    }
+  }
+  userout.b0[which(userout.b0==forNA, arr.ind = T)]<-forNA1
+
+  colnames(userout.b0)<-colnames(userout.b)
+  rownames(userout.b0)<-rownames(userout.b)
+  
+  # userout.b0<-userout.b
+  return(as.data.frame(userout.b0))
+}
+
+
+
+```
+ 
+## Other
+Counts the number of decimal places
+```{r, echo=T}
+
+decimalplaces<-function(x, dec){
+  xx<-formatC(as.numeric(x), format = "e", digits = dec)
+  xxx<-strsplit(x = xx, split = "e")
+  if (is.na(x)) {
+    xxxx<-NA
+  } else if (x%%1==0) {
+    xxxx<-round(x, digits = 0)
+  } else if (as.numeric(substr(x = xxx[[1]][2], start = 2, stop = nchar(xxx[[1]][2])))>3) {
+    xxxx<-xx
+  } else {
+    xxxx<-round(x, digits = dec)
+  }
+  return(as.character(xxxx))
+}
+
+```
+
+# Knowns: Isopleth table set up
+## For most tables:
+```{r, echo=T}
+    userout<-matrix(data = c(199, 198, 173, 201, 219, rep_len(x = NA, length.out = 5)), 
+                    nrow = 2, ncol = 5, byrow = T)
+    userout<-as.data.frame(userout)
+    colnames(userout)<-c("Low-Frequency Cetaceans", "Mid-Frequency Cetaceans", "High-Frequency Cetaceans", "Phocid Pinnipeds", "Otariid Pinnipeds")
+    rownames(userout)<-c("SEL<sub>cum</sub> Threshold", "PTS Isopleth to threshold (m)")
+    userout.blank1<-userout
+    
+        userout.blank1 %>%
+  knitr::kable("html", escape = F, position = "left")
+```
+
+## For tables from sheet E:
+```{r, echo=T}
+userout<-data.frame("SEL<sub>cum</sub> Threshold" = c(183, 185, 155, 185, 203), 
+                        "PTS SEL<sub>cum</sub> Isopleth to Threshold (m)" = rep_len(x = NA, length.out = 5),
+                        "PK Threshold"=c(219, 230, 202, 218, 232), 
+                        "PST PK Isopleth to Threshold (m)"=rep_len(x = NA, length.out = 5))
+    colnames(userout)<-c("SEL<sub>cum</sub> Threshold", 
+                         "PTS SEL<sub>cum</sub> Isopleth to Threshold (m)",
+                         "PK Threshold", 
+                         "PST PK Isopleth to Threshold (m)")
+      
+    userout<-t(userout)
+    colnames(userout)<-c("Low-Frequency Cetaceans", "Mid-Frequency Cetaceans", "High-Frequency Cetaceans", "Phocid Pinnipeds", "Otariid Pinnipeds")
+    userout.blank.e<-as.data.frame(userout)
+        userout.blank.e %>%
+  knitr::kable("html", escape = F, position = "left")
+    ```
+
+## For tables from sheet E2:
+```{r, echo=T}
+    
+    userout<-data.frame("PTS SEL<sub>cum</sub> Threshold" = c(183, 185, 155, 185, 203), 
+                        "PTS SEL<sub>cum</sub> Isopelth to Threshold (m)" = rep_len(x = NA, length.out = 5),
+                        "PTS PK Threshold"=c(219, 230, 202, 218, 232), 
+                        "PST PK Isopleth to Threshold (m)"=rep_len(x = NA, length.out = 5), 
+                        "TTS SEL<sub>cum</sub> Threshold" = c(168, 170, 140, 170, 188), 
+                        "TTS SEL<sub>cum</sub> Isopleth to Threshold (m)" = rep_len(x = NA, length.out = 5),
+                        "TTS PK Threshold"=c(213, 224, 196, 212, 226), 
+                        "TST PK Isopleth to Threshold (m)"=rep_len(x = NA, length.out = 5),
+                        "Behavior SEL<sub>cum</sub> Threshold" = c(163, 165, 135, 165, 183), 
+                        "Behavior SEL<sub>cum</sub> Isopleth to Threshold (m)" = rep_len(x = NA, length.out = 5) )
+    
+    colnames(userout)<-c("PTS SEL<sub>cum</sub> Threshold", 
+                         "PTS SEL<sub>cum</sub> Isopleth to Threshold (m)",
+                         "PTS PK Threshold", 
+                         "PST PK Isopleth to Threshold (m)", 
+                         "TTS SEL<sub>cum</sub> Threshold", 
+                         "TTS SEL<sub>cum</sub> Isopleth to Threshold (m)",
+                         "TTS PK Threshold", 
+                         "TST PK Isopleth to Threshold (m)",
+                         "Behavior SEL<sub>cum</sub> Threshold", 
+                         "Behavior SEL<sub>cum</sub> Isopleth to Threshold (m)")
+    
+    userout<-t(userout)
+    colnames(userout)<-c("Low-Frequency Cetaceans", "Mid-Frequency Cetaceans", "High-Frequency Cetaceans", "Phocid Pinnipeds", "Otariid Pinnipeds")
+    userout.blank.e2<-as.data.frame(userout)
+        userout.blank.e2 %>%
+  knitr::kable("html", escape = F, position = "left")
+```
+
+## For tables from sheet E3:
+```{r, echo=T}
+    
+    userout<-data.frame("PTS SEL<sub>cum</sub> Threshold" = c(183, 185, 155, 185, 203), 
+                        "PTS SEL<sub>cum</sub> Isopleth to Threshold (m)" = rep_len(x = NA, length.out = 5),
+                        "PTS PK Threshold"=c(219, 230, 202, 218, 232), 
+                        "PST PK Isopleth to Threshold (m)"=rep_len(x = NA, length.out = 5), 
+                        "TTS SEL<sub>cum</sub> Threshold" = c(168, 170, 140, 170, 188), 
+                        "TTS SEL<sub>cum</sub> Isopleth to Threshold (m)" = rep_len(x = NA, length.out = 5),
+                        "TTS PK Threshold"=c(213, 224, 196, 212, 226), 
+                        "TST PK Isopleth to Threshold (m)"=rep_len(x = NA, length.out = 5)                  
+    )
+    colnames(userout)<-c("PTS SEL<sub>cum</sub> Threshold", 
+                         "PTS SEL<sub>cum</sub> Isopleth to Threshold (m)",
+                         "PTS PK Threshold", 
+                         "PST PK Isopleth to Threshold (m)", 
+                         "TTS SEL<sub>cum</sub> Threshold", 
+                         "TTS SEL<sub>cum</sub> Isopleth to Threshold (m)",
+                         "TTS PK Threshold", 
+                         "TST PK Isopleth to Threshold (m)")
+    userout<-t(userout)
+    colnames(userout)<-c("Low-Frequency Cetaceans", "Mid-Frequency Cetaceans", "High-Frequency Cetaceans", "Phocid Pinnipeds", "Otariid Pinnipeds")
+    userout.blank.e3<-as.data.frame(userout)
+  
+    userout.blank.e3 %>%
+  knitr::kable("html", escape = F, position = "left")
+```
+
+
+#EXAMPLES
+
+From the choices in the menu, a analysis will be chosen. Here are some dummy values, assuming that this is not a broadband function where specicific weightings for each hearing group can be pre-determined.  
+
+```{r, echo=T}
+input<-list()
+input$v1<-2.5 #WeightFactorAdjustment_kHz
+input$v2<-150 #SourceLevel_RMS_SPL
+input$v3<-12 
+input$v4<-30 
+input$v5<-15 
+input$v6<-10
+input$v7<-220
+input$v8<-220
+input$v9<-2.5
+input$howtoweight_broad<-"SourceSpec"
+input$ui1w10<-2.5 #Low-Frequency Cetaceans
+input$ui1w20<-2.5 #Mid-Frequency Cetaceans
+input$ui1w30<-2.5 #High-Frequency Cetaceans
+input$ui1w40<-30 #Phocid Pinnipeds
+input$ui1w50<-2.5 #Otariid Pinnipeds
+```
+
+type is defined by the menus on the screen:
+type0<-paste0(input$first_submenu, input$second_submenu)
+
+##Weight Function Calculations
+Here the values simply replace the values in the Adjustment row. These would be some of the assumptions of the permittee.  
+
+```{r, echo=T}
+    weigthtfuncttable<-fill.weigthtfuncttable2(WeightFactorAdjustment_kHz=input$v1, weigthtfuncttable, 
+                                      ui1w10=input$ui1w10, ui1w20=input$ui1w20, ui1w30=input$ui1w30, ui1w40=input$ui1w40, ui1w50=input$ui1w50, 
+                                      howtoweight_broad=input$howtoweight_broad)
+    weigthtfuncttable %>%
+  knitr::kable("html", escape = F, position = "left")
+```
+
+Here the Adjustments are calculated using WeightFactorAdjustment_kHz
+
+```{r, echo=T}
+input$howtoweight_broad<-"Alter"
+
+    weigthtfuncttable<-fill.weigthtfuncttable2(WeightFactorAdjustment_kHz=input$v1, weigthtfuncttable, 
+                                      ui1w10=input$ui1w10, ui1w20=input$ui1w20, ui1w30=input$ui1w30, ui1w40=input$ui1w40, ui1w50=input$ui1w50, 
+                                      howtoweight_broad=input$howtoweight_broad)
+    weigthtfuncttable %>%
+  knitr::kable("html", escape = F, position = "left")
+```
+
+## Filling out the Isopleth Table
+
+###A.1
+```{r, echo=T}
+    type0="A.1"
+      SourceLevel_RMS_SPL<-input$v2
+      durationofsoundproduction_hrswithin24hrperiod<-input$v3
+      durationofsoundproduction_sec<-durationofsoundproduction_hrswithin24hrperiod*3600
+      LogDurationOfSoundProductionx10<-log10(durationofsoundproduction_sec)*10
+      Propogation_xLogR<-input$v4
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            durationofsoundproduction_hrswithin24hrperiod=durationofsoundproduction_hrswithin24hrperiod,
+                            durationofsoundproduction_sec=durationofsoundproduction_sec, 
+                            LogDurationOfSoundProductionx10=LogDurationOfSoundProductionx10, 
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank1,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0)
+ userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+ column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###A1.1
+```{r, echo=T}       
+    type0="A1.1"
+      SourceLevel_RMS_SPL<-input$v2
+      NoPiles_Within24hr<-input$v3
+      DurationToDriveSinglePile_min<-input$v4
+      durationofsoundproduction_hrswithin24hrperiod<-(NoPiles_Within24hr*DurationToDriveSinglePile_min)*60
+      durationofsoundproduction_sec<-durationofsoundproduction_hrswithin24hrperiod
+      LogDurationOfSoundProductionx10<-log10(durationofsoundproduction_sec)*10
+      Propogation_xLogR<-input$v5
+      distancefromsourcelevelmeasurement_m<-input$v6
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            durationofsoundproduction_hrswithin24hrperiod=durationofsoundproduction_hrswithin24hrperiod,
+                            durationofsoundproduction_sec=durationofsoundproduction_sec, 
+                            LogDurationOfSoundProductionx10=LogDurationOfSoundProductionx10, 
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank1,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0, 
+                            distancefromsourcelevelmeasurement_m=distancefromsourcelevelmeasurement_m)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###B.1
+```{r, echo=T} 
+  type0="B.1"
+      SourceLevel_RMS_SPL<-input$v2
+      Activitydurationofsoundproduction_hrswithin24hrperiod<-input$v3
+      PulseDuration_sec<-input$v4
+      InverseRepetitionRate_sec<-input$v5 #1/Repetition rate^ (seconds) # ^Time between onset of successive pulses.
+      DutyCycle<-PulseDuration_sec/InverseRepetitionRate_sec
+      durationofsoundproduction_sec<-DutyCycle*3600*Activitydurationofsoundproduction_hrswithin24hrperiod
+      LogDurationOfSoundProductionx10<-log10(durationofsoundproduction_sec)*10
+      Propogation_xLogR<-input$v6
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            LogDurationOfSoundProductionx10=LogDurationOfSoundProductionx10, 
+                            Propogation_xLogR=Propogation_xLogR, 
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0,
+                            userout.blank0 = userout.blank1)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###B.2
+```{r, echo=T} 
+type0="B.2"
+      ##### B.2####
+      SourceLevel_RMS_SPL<-input$v2 #Here (Single Ping/Pulse SEL)
+      Activitydurationofsoundproduction_hrswithin24hrperiod<-input$v3
+      NoPulsesIn1hr<-input$v4
+      NoPulsesIn24hr<-NoPulsesIn1hr*Activitydurationofsoundproduction_hrswithin24hrperiod
+      LogDurationOfSoundProductionx10<-log10(NoPulsesIn24hr)*10 #Number of Pulses
+      Propogation_xLogR<-input$v5
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            LogDurationOfSoundProductionx10=LogDurationOfSoundProductionx10, 
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank1,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+### C.1
+```{r, echo=T} 
+type0="C.1"
+      #### C.1####
+      SourceLevel_RMS_SPL<-input$v2
+      SourceVelocity_m_sec<-input$v3
+      DutyCycle<-1
+      SourceFactor<-(10^(SourceLevel_RMS_SPL/10))*DutyCycle
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            userout.blank0 = userout.blank1,#get(input$usero),
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0, 
+                            SourceFactor = SourceFactor,
+                            SourceVelocity_m_sec=SourceVelocity_m_sec)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###D.1
+```{r, echo=T}  
+    type0="D.1"
+      SourceLevel_RMS_SPL<-input$v2
+      SourceVelocity_m_sec<-input$v3
+      PulseDuration_sec<-input$v4
+      InverseRepetitionRate_sec<-input$v5
+      DutyCycle<-PulseDuration_sec/InverseRepetitionRate_sec
+      SourceFactor<-(10^(SourceLevel_RMS_SPL/10))*DutyCycle
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            userout.blank0 = userout.blank1,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0, 
+                            distancefromsourcelevelmeasurement_m=distancefromsourcelevelmeasurement_m, 
+                            SourceFactor = SourceFactor,
+                            SourceVelocity_m_sec=SourceVelocity_m_sec)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###D.2
+```{r, echo=T}        
+    type0="D.2"
+      SourceLevel_SingleShotSEL=input$v2
+      SourceVelocity_m_sec<-input$v3
+      InverseRepetitionRate_sec<-input$v4
+      SourceFactor<-(10^(SourceLevel_SingleShotSEL/10))/InverseRepetitionRate_sec
+      
+      userout<-fill.userout(
+        userout.blank0 = userout.blank1,
+        weigthtfuncttable=weigthtfuncttable, 
+        type=type0, 
+        SourceFactor = SourceFactor,
+        SourceVelocity_m_sec=SourceVelocity_m_sec
+      )  
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+ column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###E.1
+```{r, echo=T}  
+type0="E.1"
+SourceLevel_RMS_SPL<-input$v2
+      Activitydurationofsoundproduction_hrswithin24hrperiod<-input$v3
+      PulseDuration_sec<-input$v4
+      InverseRepetitionRate_sec<-input$v5
+      DutyCycle<-PulseDuration_sec/InverseRepetitionRate_sec
+      durationofsoundproduction_sec<-(Activitydurationofsoundproduction_hrswithin24hrperiod*3600)*DutyCycle
+      LogDurationOfSoundProductionx10<-log10(durationofsoundproduction_sec)*10 #Number of Pulses
+      Propogation_xLogR<-input$v6
+      SourceLevel_PK_SPL<-input$v7
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            durationofsoundproduction_sec=durationofsoundproduction_sec, 
+                            LogDurationOfSoundProductionx10=LogDurationOfSoundProductionx10, 
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank.e, 
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0, 
+                            SourceLevel_PK_SPL=SourceLevel_PK_SPL)  
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+ column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###E.2
+```{r, echo=T}  
+type0="E.2"
+      SourceLevel_SingleShotSEL<-input$v2
+      SourceLevel_PK_SPL<-input$v7
+      Activitydurationofsoundproduction_hrswithin24hrperiod<-input$v3
+      NumberOfPulses_1hrs<-input$v4
+      Propogation_xLogR<-input$v6
+      NumberOfPulses_24hrs<-Activitydurationofsoundproduction_hrswithin24hrperiod*NumberOfPulses_1hrs
+      LogNumberOfPulsesx10<-log10(NumberOfPulses_24hrs)*10
+      
+      userout<-fill.userout(
+        Propogation_xLogR=Propogation_xLogR, 
+        userout.blank0 = userout.blank.e,
+        weigthtfuncttable=weigthtfuncttable, 
+        LogNumberOfPulsesx10=LogNumberOfPulsesx10,
+        SourceLevel_SingleShotSEL=SourceLevel_SingleShotSEL,
+        type=type0, 
+        SourceLevel_PK_SPL=SourceLevel_PK_SPL)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###E1.1
+```{r, echo=T}  
+    type0="E1.1"
+      SourceLevel_RMS_SPL<-input$v2 
+      numberofpiles_24<-input$v3
+      StrikeDuration_sec<-input$v4 
+      NumberOfStrikesPerPile<-input$v5
+      durationofsoundproduction_sec<-numberofpiles_24*NumberOfStrikesPerPile*StrikeDuration_sec
+      LogDurationOfSoundProductionx10<-log10(durationofsoundproduction_sec)*10
+      Propogation_xLogR<-input$v6
+      SourceLevel_PK_SPL<-input$v8
+      distancefromsourcelevelmeasurement_m_RMS<-input$v7
+      distancefromsourcelevelmeasurement_m_PK<-input$v9
+      SourceLevel_1meter<-SourceLevel_PK_SPL+Propogation_xLogR*log10(distancefromsourcelevelmeasurement_m_PK)
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            durationofsoundproduction_sec=durationofsoundproduction_sec, 
+                            LogDurationOfSoundProductionx10=LogDurationOfSoundProductionx10, 
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank.e,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            distancefromsourcelevelmeasurement_m_RMS = distancefromsourcelevelmeasurement_m_RMS,
+                            distancefromsourcelevelmeasurement_m_PK= distancefromsourcelevelmeasurement_m_PK,
+                            type=type0, 
+                            SourceLevel_1meter=SourceLevel_1meter,
+                            SourceLevel_PK_SPL=SourceLevel_PK_SPL)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###E1.2
+
+```{r, echo=T}  
+    type0="E1.2"
+      SourceLevel_SingleShotSEL<-input$v2
+      SourceLevel_PK_SPL<-input$v7
+      NumberOfStrikesPerPile<-input$v3
+      numberofpiles_24<-input$v4
+      Propogation_xLogR<-input$v5
+      NumberOfPulses_1hrs<-numberofpiles_24/24
+      distancefromsourcelevelmeasurement_m_SEL<-input$v6
+      distancefromsourcelevelmeasurement_m_PK<-input$v8      
+      UnweightedSELcum_atmeasureddistance<-SourceLevel_SingleShotSEL+10*log10(NumberOfStrikesPerPile*numberofpiles_24)
+      SourceLevel_1meter<-SourceLevel_PK_SPL+Propogation_xLogR*log10(distancefromsourcelevelmeasurement_m_PK)
+      
+      userout<-fill.userout(SourceLevel_PK_SPL=SourceLevel_PK_SPL, 
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank.e,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            NumberOfPulses_24hrs=NumberOfPulses_24hrs,
+                            SourceLevel_RMS_SPL=SourceLevel_SingleShotSEL,
+                            type=type0, 
+                            SourceLevel_1meter=SourceLevel_1meter,
+                            distancefromsourcelevelmeasurement_m_RMS = distancefromsourcelevelmeasurement_m_SEL,
+                            distancefromsourcelevelmeasurement_m_PK= distancefromsourcelevelmeasurement_m_PK,
+                            UnweightedSELcum_atmeasureddistance=UnweightedSELcum_atmeasureddistance)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###E2.1
+```{r, echo=T}  
+type0="E2.1"
+      SourceLevel_RMS_SPL<-input$v2 
+      Activitydurationofsoundproduction_hrswithin24hrperiod<-input$v3
+      ShortDuration_hrswithin24hrs<-input$v4
+      NumberOfDetonations_in1Hr<-input$v5
+      Propogation_xLogR<-input$v6
+      SourceLevel_PK_SPL<-input$v7
+      durationofsoundproduction_sec<-Activitydurationofsoundproduction_hrswithin24hrperiod*NumberOfDetonations_in1Hr*ShortDuration_hrswithin24hrs
+      LogDurationOfSoundProductionx10<-log10(durationofsoundproduction_sec)*10
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            SourceLevel_PK_SPL = SourceLevel_PK_SPL,
+                            LogDurationOfSoundProductionx10=LogDurationOfSoundProductionx10,
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank.e2,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###E2.2
+```{r, echo=T}        
+    type0="E2.2"
+      SourceLevel_SingleShotSEL<-input$v2 #Unless otherwise specified, source levels are referenced 1 m from the source.
+      SourceLevel_PK_SPL<-input$v7
+      Activitydurationofsoundproduction_hrswithin24hrperiod<-input$v3
+      Propogation_xLogR<-input$v5
+      NumberOfDetonations_in1Hr<-input$v4
+      NumberOfShots_24hrs<-Activitydurationofsoundproduction_hrswithin24hrperiod*NumberOfDetonations_in1Hr
+      LogNumberOfShotsx10<-log10(NumberOfShots_24hrs)*10
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_SingleShotSEL, 
+                            SourceLevel_PK_SPL = SourceLevel_PK_SPL,
+                            LogDurationOfSoundProductionx10=LogNumberOfShotsx10,
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank.e2,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###E3.1
+```{r, echo=T}      
+type0="E3.1"
+      SourceLevel_RMS_SPL<-input$v2 
+      ShotDuration_sec<-input$v3
+      LogDurationOfSoundProductionx10<-log10(ShotDuration_sec)*10
+      Propogation_xLogR<-input$v4
+      SourceLevel_PK_SPL<-input$v7
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            SourceLevel_PK_SPL = SourceLevel_PK_SPL,
+                            LogDurationOfSoundProductionx10=LogDurationOfSoundProductionx10,
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank.e3,#get(input$usero),
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###E3.2
+
+```{r, echo=T}
+type0="E3.2"
+      SourceLevel_RMS_SPL<-input$v2 
+      SourceLevel_PK_SPL<-input$v7
+      Propogation_xLogR<-input$v3
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_RMS_SPL, 
+                            SourceLevel_PK_SPL = SourceLevel_PK_SPL,
+                            Propogation_xLogR=Propogation_xLogR, 
+                            userout.blank0 = userout.blank.e3,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###F.1
+
+```{r, echo=T}
+      
+    type0="F.1"
+      SourceLevel_RMS_SPL<-input$v2 
+      SourceVelocity_m_sec<-input$v3
+      SourceLevel_PK_SPL<-input$v7
+      PulseDuration_sec<-input$v4
+      InverseRepetitionRate_sec<-input$v5
+      DutyCycle<-PulseDuration_sec/InverseRepetitionRate_sec
+      SourceFactor<-(10^(SourceLevel_RMS_SPL/10))*DutyCycle
+      
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_SingleShotSEL, 
+                            SourceLevel_PK_SPL = SourceLevel_PK_SPL,
+                            SourceVelocity_m_sec = SourceVelocity_m_sec,
+                            userout.blank0 = userout.blank.e,#get(input$usero),
+                            SourceFactor=SourceFactor,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0)
+       userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+###F.2
+
+```{r, echo=T}       
+type0="F.2"
+      SourceLevel_SingleShotSEL<-input$v2 
+      SourceVelocity_m_sec<-input$v3
+      InverseRepetitionRate_sec<-input$v4
+      SourceLevel_PK_SPL<-input$v7
+      SourceFactor<-(10^(SourceLevel_SingleShotSEL/10))/InverseRepetitionRate_sec
+      
+      ###User Output: Resultant Isopleths
+      userout<-fill.userout(SourceLevel_RMS_SPL=SourceLevel_SingleShotSEL, 
+                            SourceLevel_PK_SPL = SourceLevel_PK_SPL,
+                            SourceVelocity_m_sec = SourceVelocity_m_sec,
+                            userout.blank0 = userout.blank.e,#get(input$usero),
+                            SourceFactor=SourceFactor,
+                            weigthtfuncttable=weigthtfuncttable, 
+                            type=type0)
+     userout %>%
+  knitr::kable("html", escape = F, position = "left") %>%
+  column_spec(2:(ncol(userout)+1), background = "lightblue")
+```
+
+```{r, echo=T}
+
+```
+
+
+s

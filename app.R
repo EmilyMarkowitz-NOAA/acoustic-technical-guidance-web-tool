@@ -9,7 +9,6 @@
 # Writtiten by Emily Markowitz
 # Started: August 2018 
 # written on R version 3.4.1 (2017-06-30) -- "Single Candle"
->>>>>>> 3d982256568e4e3fba27f00b59b76abd13b52e5d
 # https://jmlondon.shinyapps.io/AcousticThresholds/
 
 # #TESTING#####
