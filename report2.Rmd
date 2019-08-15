@@ -1,11 +1,7 @@
 ---
 title: ""
 author: ""
-<<<<<<< HEAD
 date: "V1.0, July 2019"
-=======
-date: "V1.0, June 2019"
->>>>>>> 3d982256568e4e3fba27f00b59b76abd13b52e5d
 output: 
   html_document:
     # mathjax: https://d3eoax9i5htok0.cloudfront.net/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML

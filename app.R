@@ -1,14 +1,9 @@
 #########INTRODUCTION###################
 # Underwater Thresholds for Onset of Permanent and Temporary Threshold Shifts (Version 2.0)
-<<<<<<< HEAD
-# Writtiten by Emily Markowitz 
-# March 2018 - July 2019
+# Writtiten by Emily Markowitz
+# August 2018
 # written on R version 3.4.1 (2017-06-30) -- "Single Candle"
 # Version 1.0.153 - ? 2009-2017 RStudio, Inc.
-=======
-# Writtiten by Emily Markowitz
-# Started: August 2018 
-# written on R version 3.4.1 (2017-06-30) -- "Single Candle"
 # https://jmlondon.shinyapps.io/AcousticThresholds/
 
 # #TESTING#####
@@ -929,11 +924,11 @@ ui <- fluidPage(
   theme = shinytheme("flatly"),
   # shinythemes::themeSelector(),
 
-  titlePanel(title = ("Technical Guidance's Optional Web Calculator Tool"),
-             windowTitle = ("Marine Mammal Acoustic Technical Guidance (Web App) | NOAA Fisheries")),
-  # title = div(href='https://www.fisheries.noaa.gov/national/marine-mammal-protection/marine-mammal-acoustic-technical-guidance',
-  #             # imageOutput(outputId = "ImageFull",width=1000/5,height=349/5),
-  #             HTML('<b>Technical Guidance Optional Web Calculator Tool</b>')),
+  titlePanel(
+    windowTitle = "Marine Mammal Acoustic Technical Guidance (Web App) | NOAA Fisheries",
+    title = tags$head(tags$link(rel="shortcut icon", 
+                                href="https://www.noaa.gov/sites/all/themes/custom/noaa/favicon.ico", 
+                                type="image/vnd.microsoft.icon"))), 
   navbarPage(
     title = imageOutput(outputId = "Image",width=1000/25,height=1000/25,
                         hover = "National Oceanic and Atmospheric Administration (NOAA)"),  #https://rdrr.io/cran/shiny/man/renderImage.html
