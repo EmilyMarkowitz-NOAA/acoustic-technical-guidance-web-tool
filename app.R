@@ -289,13 +289,13 @@ tabPanel(title = "Introduction",
                target="_blank")),
            p(a("2018 Revision to Technical Guidance for Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing",
                href="https://www.fisheries.noaa.gov/webdam/download/75962998",
-               target="_blank")),
-           p(a("User Manual for Web Calculator (optional)",
-               href="https://www.fisheries.noaa.gov/webdam/download/75963103",
-               target="_blank")),
-           p(a("User Excel Spreadsheet",
-               href="https://www.fisheries.noaa.gov/webdam/download/75963097",
-               target="_blank"))
+               target="_blank"))#,
+           # p(a("User Manual for Web Calculator (optional)",
+           #     href="https://www.fisheries.noaa.gov/webdam/download/75963103",
+           #     target="_blank")),
+           # p(a("User Excel Spreadsheet",
+           #     href="https://www.fisheries.noaa.gov/webdam/download/75963097",
+           #     target="_blank"))
 
          ), wellPanel(
            h3("Note:"),
@@ -316,7 +316,7 @@ tabPanel(title = "Introduction",
                column(12, wellPanel(
                  h2("Suggested Broadband WFAs"),
                  br(),
-                 p("Table 1: Suggested (default*) weighting factor adjustments (WFA). NMFS acknowledges default WFAs are likely conservative. *Limited data on spectra associated with down-the-hole drilling/hammering exists. Thus, the WFA for vibratory pile driving is recommended as a surrogate for this source."),
+                 p("Table 1: Suggested (default*) weighting factor adjustments (WFA). NMFS acknowledges default WFAs are likely conservative."),
                  dataTableOutput("weight5"),
                  br(),
                  p("* NMFS acknowledges default WFAs are likely conservative. ")
@@ -1880,7 +1880,7 @@ server <- function(input, output, session) {
   })   
   
   output$weight5 <- renderDataTable({
-    infot10<-data.frame("Source"=c("Seismic", "Impact pile driving", "Vibratory pile driving, Down-the-hole drills/harmmers*", "Drilling"),
+    infot10<-data.frame("Source"=c("Seismic", "Impact pile driving", "Vibratory pile driving*", "Drilling"),
                         "WFA (kHz)"=c(1, 2, 2.5, 2),
                         "Example Supporting Sources"=c("Breitzke et al. 2008; Tashmukhambetov et al. 2008; Tolstoy et al. 2009",
                                                        "Blackwell 2005; Reinhall and Dahl 2011",
@@ -2008,7 +2008,7 @@ server <- function(input, output, session) {
       "Isopleth", "A line drawn through all points having the same numerical value. In the case of sound, the line has equal sound pressure or exposure levels.",
       "Mean-square sound pressure", "Integral over a specified time interval of squared sound pressure divided by the duration of the time interval, for a specified frequency range (ISO 2017).",
       "Narrowband", "See 'bandwidth.'",
-      "Non-impulsive sound", "Sound sources that produce sounds that can be broadband, narrowband or tonal, brief or prolonged, continuous or intermittent) and typically do not have a high peak sound pressure with rapid rise time that impulsive sounds do. Examples of non-impulsive sound sources include marine vessels, machinery operations/construction (e.g., drilling), certain sonar (e.g. tactical, navigational, and scientific), vibratory pile driving hammers, and down-the-hole drills/hammers.",
+      "Non-impulsive sound", "Sound sources that produce sounds that can be broadband, narrowband or tonal, brief or prolonged, continuous or intermittent) and typically do not have a high peak sound pressure with rapid rise time that impulsive sounds do. Examples of non-impulsive sound sources include marine vessels, machinery operations/construction (e.g., drilling), certain sonar (e.g. tactical, navigational, and scientific), and vibratory pile driving hammers.",
       "Octave", "The interval between two sounds having a basic frequency ratio of two (Yost 2007). For example, one octave above 400 Hz is 800 Hz. One octave below 400 Hz is 200 Hz.",
       "Omnidirectional", "Receiving or transmitting signals in all directions (i.e., variation with direction is designed to be as small as possible).",
       "One-third octave (base 10)", "The frequency ratio corresponding to a decidecade or one tenth of a decade (ISO 2017).",

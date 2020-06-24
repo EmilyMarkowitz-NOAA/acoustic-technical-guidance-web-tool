@@ -3,12 +3,12 @@ title: "NOAA Fisheries Technical Guidance for Assessing the Effects of Anthropog
 author: "Emily Markowitz (Emily.Markowitz@noaa.gov)"
 date: "V1.0"
 output: html_document
-
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ![](./www/NOAA_Logo_Full.jpg "NOAA Logo")
 
 This report was generated on `r {(Sys.time())}`
