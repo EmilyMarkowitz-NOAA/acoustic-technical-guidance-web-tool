@@ -9,33 +9,6 @@
 
 ###########PACKAGES###################
 # Need for running Shiny apps
-library(shiny)
-
-# Design
-library(shinydashboard)
-library(shinythemes)
-
-# Use Java Script
-library(shinyjs)
-library(shinyBS)
-require(V8)
-
-# For table formatting
-library(DT)
-library(kableExtra)
-library(formattable)
-
-#Piping/operators which promote semantics
-library(magrittr)
-library(dplyr)
-
-#Plotting
-library(ggplot2)
-
-#RMarkdown documents for reports 
-library(knitr)
-library(markdown) # #https://stackoverflow.com/questions/33499651/rmarkdown-in-shiny-application
-
 
 ##########SOURCE DATA####################
 source("Reference.R")
@@ -232,7 +205,7 @@ ui <- fluidPage(
 
                                        ###R MARKDOWN REPORT
                                        downloadButton("report", "Generate Report"), 
-                                       downloadButton("downloadData", "Download CSV File")
+                                       downloadButton("downloadData", "Download Excel File")
 
                              )
                       )
@@ -1438,63 +1411,51 @@ server <- function(input, output, session) {
     js$winprint()
   })
   
-  ###***DOWNLOADABLE CSV OF DATASET####
+  ###***DOWNLOADABLE EXCEL OF DATASET####
   output$downloadData <- downloadHandler(
-    # filename <- paste0("NOAAAcousticThresholds_", Sys.Date(), ".csv"),
-    filename = #function() {
-      "downloadData.csv",
-    # },
-    contentType = "text/csv",
+    filename = function() { "downloadData.xlsx"},
     content = function(file) {
-      
-      filename0<-file#"downloadData.csv"#file.path(getwd(), "downloadData.csv")
       
       if (input$SoundSource!="Other") {
         meth<-methods.SoundSource
       } else {
         meth<-methods.SoundCatagory
       }
-      
-      select_AA0<-paste0(#input$zero_submenu, ": ", 
+
+      select_AA0<-paste0(#input$zero_submenu, ": ",
         SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
-      spaces<-""
-      str1a <- paste0(spaces, input$Client)
-      str2a <- paste0(spaces, input$ProjectName)
-      str3a <- paste0(spaces, input$ProjectDescription)
-      # str41a <- paste0(spaces, names(methods.SoundLevelMetrics[which(methods.SoundLevelMetrics==input$SoundLevelMetrics)]))
-      # str41a <- paste0(spaces, names(meth[which(meth==SoundEquation(input$SoundSource, input$SoundCatagory))]))
-      str41a <- paste0(spaces, names(meth[which(meth==SoundEquation(input$SoundSource, input$SoundCatagory))]))
-      str42a <- paste0(spaces, names(methods.SoundLevelMetrics[which(methods.SoundLevelMetrics==input$SoundLevelMetrics)]))
-      str51a <- paste0(spaces, names(which(methods.BroadNarrow==input$methods.BroadNarrow)))
-      
-      suminputs<-t(data.frame(str1a,str2a,str3a, #str4a,
-                              str41a, str42a,#str5a, 
-                              str51a, select_AA0))
-      rownames(suminputs)<-c("Project Information", 
-                             "Project Contact", 
-                             "Project/Source Information (Including Assumptions)", 
-                             "Sound Source or Source Category",
-                             # "Incorporate Auditory Weighting Functions", 
-                             "Source Level Metric", 
-                             # "Band", 
-                             "Weighting", 
-                             "Spreadsheet Page Equivalent")
-      
-      str1 <- "Project Information: "
-      str1a <- paste0(spaces, input$Client)
-      str2 <- "Project Contact: "
-      str2a <- paste0(spaces, input$ProjectName)
-      str3 <- "Project/Source Information (Including Assumptions):"
-      str3a <- paste0(spaces, "#", input$ProjectNumber)
-      str4 <- "The Sound Source or Source Category?:"
-      # str4a <- paste0(spaces, names(methods000[(methods00==input$zero_submenu)]))
-      str41 <- "Incorporate Auditory Weighting Functions: "
-      str41a <- paste0(spaces, names(meth[which(meth==SoundEquation(input$SoundSource, input$SoundCatagory))]))
-      
-      
+
+
+      #########Project Information#########
+
+      introinfo<-cbind.data.frame(
+        "Project Information" = input$ProjectName,
+        "Project Contact" = input$Client,
+        "Project/Source Information (Including Assumptions)" = input$ProjectDescription,
+        "Incorporate Auditory Weighting Functions" = names(meth[which(meth==SoundEquation(input$SoundSource,
+                                                                                          input$SoundCatagory))]))
+
+      introinfo<-data.frame(t(introinfo))
+      introinfo<-cbind.data.frame(rownames(introinfo), introinfo)
+      colnames(introinfo)<-c("", "Project Information")
+
+      #########Inputs#########
+
+      suminputs<-cbind.data.frame(
+        "Sound Source or Source Category" = names(meth[which(meth==SoundEquation(input$SoundSource, input$SoundCatagory))]),
+        "Source Level Metric" = names(methods.SoundLevelMetrics[which(methods.SoundLevelMetrics==input$SoundLevelMetrics)]),
+        "Weighting" = names(which(methods.BroadNarrow==input$methods.BroadNarrow)),
+        "Spreadsheet Page Equivalent" = select_AA0
+        )
+
+      suminputs<-data.frame(t(suminputs))
+      colnames(suminputs)<-c("Inputs")
+
+
+
       select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
       V<-VV[which(VVn==select_AA)]; V<-V[[1]]
-      det<-": "
+      det<-""
       str1 <- ifelse(!is.null(input$ui1), paste0(V["ui1"], det), "")
       str1a <- ifelse(!is.null(input$ui1) , input$ui1, "")
       str2 <- ifelse(!is.null(input$ui2), paste0(V["ui2"], det),  "")
@@ -1513,195 +1474,109 @@ server <- function(input, output, session) {
       str8a <- ifelse(!is.null(input$ui8) , paste0(input$ui8), "")
       str9 <- ifelse(!is.null(input$ui9), paste0(V["ui9"], det),  "")
       str9a <- ifelse(!is.null(input$ui9) , paste0(input$ui9), "")
-      introinfo1<-data.frame(matrix(data=c(str1,str1a, 
-                                           str2,str2a, 
-                                           str3,str3a, 
-                                           str4,str4a, 
-                                           str5,str5a, 
-                                           str6,str6a, 
-                                           str7,str7a, 
-                                           str8,str8a, 
+      suminputs1<-data.frame(matrix(data=c(str1,str1a,
+                                           str2,str2a,
+                                           str3,str3a,
+                                           str4,str4a,
+                                           str5,str5a,
+                                           str6,str6a,
+                                           str7,str7a,
+                                           str8,str8a,
                                            str9,str9a), ncol = 2, byrow = T))
-      introinfo2<-data.frame(introinfo1[,2])
-      introinfo<-(data.frame(introinfo1[,2][which(introinfo1[,2]!="")]))
-      rownames(introinfo)<-(introinfo1[which(introinfo1[,2]!=""),1])
-      colnames(introinfo)<-c("")
-      introinfo<-(introinfo)
+      suminputs1<-suminputs1[!(suminputs1$X2 %in% ""),]
+      suminputs1<-suminputs1[!(suminputs1$X1 %in% "NA"),]
+      rownames(suminputs1)<-suminputs1$X1
+      suminputs1$X1<-NULL
+      colnames(suminputs1)<-colnames(suminputs)
+      suminputs<-rbind.data.frame(suminputs, suminputs1)
       
-      ###weight4
-      weight4 <- w4formula()
-      weight4[,1]<-as.character(weight4)
+      suminputs<-cbind.data.frame(rownames(suminputs), suminputs)
+      colnames(suminputs)<-c("", "Inputs")
+
+
+
       
-      ###Weight Warning
-      tempweight<-c(as.numeric(as.character(input$ui1w1)), 
+      #############Weighting Function Adjustments##############
+      weight4 <- data.frame(w4formula())
+      weight4<-cbind.data.frame(rownames(weight4), weight4)
+      colnames(weight4)[1]<-""
+      # weight4[,1]<-as.character(weight4)
+
+
+      ##############Weighting Function Adjustments Warnings#############
+      tempweight<-c(as.numeric(as.character(input$ui1w1)),
                     as.numeric(as.character(input$ui1w2)),
                     as.numeric(as.character(input$ui1w3)),
                     as.numeric(as.character(input$ui1w4)),
                     as.numeric(as.character(input$ui1w5)))
+
+      step5warning<-data.frame(Step5Warning(tempweight, #Weighting,
+                                 BroadNarrow=input$methods.BroadNarrow,
+                                 SoundSource=input$SoundSource,
+                                 ui1 = input$ui1, html = F))
       
-      step5warning<-Step5Warning(tempweight, #Weighting, 
-                                 BroadNarrow=input$methods.BroadNarrow, 
-                                 SoundSource=input$SoundSource, 
-                                 ui1 = input$ui1, html = F)
-      
-      ###text_calc
+      step5warning<-cbind.data.frame(rownames(step5warning), step5warning)
+      colnames(step5warning)<-c("", "Weighting Function Adjustments Warnings")
+
+      #########Threshold Isopleths Results#########
+
       text_calc0 <- sformula()
-      text_calc<-data.frame(matrix(data = NA, 
-                                   nrow = nrow(text_calc0), 
+      text_calc<-data.frame(matrix(data = NA,
+                                   nrow = nrow(text_calc0),
                                    ncol = ncol(text_calc0)))
       for(r in 1:nrow(text_calc0)) {
         for(c in 1:ncol(text_calc0)) {
           text_calc[r,c]<-gsub(pattern = "<b>", replacement = "", x = text_calc0[r,c])
           text_calc[r,c]<-gsub(pattern = "</b>", replacement = "", x = text_calc[r,c])
-        } 
+        }
       }
-      
+
       text_calc_row<-rownames(text_calc0)
       for(c in 1:length(text_calc_row)) {
         text_calc_row[c]<-gsub(pattern = "<b>", replacement = "", x = text_calc_row[c])
         text_calc_row[c]<-gsub(pattern = "</b>", replacement = "", x = text_calc_row[c])
         text_calc_row[c]<-gsub(pattern = "<sub>", replacement = "", x = text_calc_row[c])
         text_calc_row[c]<-gsub(pattern = "</sub>", replacement = "", x = text_calc_row[c])
-      } 
-      
+      }
+
      rownames(text_calc)<-(text_calc_row)
      colnames(text_calc)<-colnames(text_calc0)
+     text_calc<-cbind.data.frame(rownames(text_calc), text_calc)
+     colnames(text_calc)[1]<-""
      
-      ###text_calc warning
-      # select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), 
-      #                   input$SoundLevelMetrics)
-      # V<-VV[which(VVn==select_AA)]; V<-V[[1]]
-      step4warning<-Step4Warning(ui2 = input$ui2, 
-                                 ui3 = input$ui3, 
-                                 ui4 = input$ui4, 
-                                 ui5 = input$ui5, 
-                                 ui6 = input$ui6, 
-                                 ui7 = input$ui7, 
-                                 ui8 = input$ui8, 
-                                 ui9 = input$ui9, html = F)
+     #########Threshold Isopleths Results Warnings#########
+     
+      step4warning<-data.frame(Step4Warning(ui2 = input$ui2,
+                                 ui3 = input$ui3,
+                                 ui4 = input$ui4,
+                                 ui5 = input$ui5,
+                                 ui6 = input$ui6,
+                                 ui7 = input$ui7,
+                                 ui8 = input$ui8,
+                                 ui9 = input$ui9, html = F))
+      step4warning<-cbind.data.frame(rownames(step4warning), step4warning)
+      colnames(step4warning)<-c("","Threshold Isopleths Results Warnings")
       
-      # Set up parameters to pass to Rmd document
-      # library(gtools)
-      # smartbind(list(
-      #   introinfo = introinfo,
-      #   suminputs = suminputs,
-      #   weight4 = weight4,
-      #   howtoweight_band = input$methods.BroadNarrow,
-      #   step5warning = step5warning,
-      #   text_calc = text_calc,
-      #   step4warning = step4warning)
-      # )
+      #########Disclaimers and Notes#########
       
-      #Project Information
-      write.table("Project Information",
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=FALSE)
+      DisclNote<-rbind.data.frame("Disclaimer" = "NMFS has provided this Web Calculator as an optional tool to provide estimated effect distances (i.e., isopleths) where PTS onset thresholds may be exceeded. Results provided by this calculator do not represent the entirety of the comprehensive effects analysis, but rather serve as one tool to help evaluate the effects of a proposed action on marine mammal hearing and make findings required by NOAA's various statutes. Input values are the responsibility of the individual user.",
+                            "Notes" = "This Web Calculator provides a means to estimates distances associated with the Technical Guidance's PTS onset thresholds. Mitigation and monitoring requirements associated with a Marine Mammal Protection Act (MMPA) authorization or an Endangered Species Act (ESA) consultation or permit are independent management decisions made in the context of the proposed activity and comprehensive effects analysis, and are beyond the scope of the Technical Guidance and the Web Calculator.", 
+                            "Questions" = "For any comments or questions please contact <amy.scholik@noaa.gov>")
+      
+      DisclNote<-cbind.data.frame(rownames(DisclNote), DisclNote)
+      colnames(DisclNote)<-c("", "Disclaimers and Notes")
+      
+      
+      write_xlsx(x = list(
+        "Project Information" = introinfo, 
+        "Input Parameters" = suminputs, 
+        "Weighting Function Adjustments" = weight4, 
+        "Weighting Function Warnings" = step4warning, 
+        "Threshold Isopleths Results" = text_calc, 
+        "Threshold Isopleths Warnings" = step5warning,
+        "Disclaimer and Notes" = DisclNote), 
+        path = file, col_names = T, format_headers = T, use_zip64 = T)
 
-      write.table(suminputs,
-                  file=filename0,
-                  sep=",", row.names=TRUE, col.names=FALSE, append=TRUE)
-      
-      write.table("", #Space
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      #Input Parameters
-      write.table("Input Parameters",
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      write.table(introinfo,
-                  file=filename0,
-                  sep=",", row.names=TRUE, col.names=FALSE, append=TRUE)
-      
-      write.table("", #Space
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      # Weighting Function Adjustments (-dB)
-      write.table("Weighting Function Adjustments (-dB)",
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      write.table(weight4,
-                  file=filename0,
-                  sep=",", row.names=TRUE, col.names=TRUE, append=TRUE)
-      
-      write.table("", #Space
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      # Weighting Function Adjustments (-dB) WARNINGS
-      write.table("Weighting Function Adjustments (-dB) Warnings",
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      write.table(step4warning,
-                  file=filename0,
-                  sep=",", row.names=TRUE, col.names=FALSE, append=TRUE)
-      
-      write.table("", #Space
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      # Threshold Isopleths Results     
-      write.table("Threshold Isopleths Results",
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      write.table(text_calc,
-                  file=filename0,
-                  sep=",", row.names=TRUE, col.names=TRUE, append=TRUE)
-      
-      write.table("", #Space
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      # Threshold Isopleths Results WARNINGS    
-      write.table("Threshold Isopleths Results Warnings",
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      write.table(step5warning,
-                  file=filename0,
-                  sep=",", row.names=TRUE, col.names=FALSE, append=TRUE)
-      
-      write.table("", #Space
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      # DISCLAIMER  
-      write.table("DISCLAIMER",
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      write.table("NMFS has provided this Web Calculator as an optional tool to provide estimated effect distances (i.e., isopleths) where PTS onset thresholds may be exceeded. Results provided by this calculator do not represent the entirety of the comprehensive effects analysis, but rather serve as one tool to help evaluate the effects of a proposed action on marine mammal hearing and make findings required by NOAA's various statutes. Input values are the responsibility of the individual user.",
-                  file=filename0,
-                  sep=",", row.names=TRUE, col.names=FALSE, append=TRUE)
-      
-      write.table("", #Space
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      # NOTE    
-      write.table("NOTE",
-                  file=filename0,
-                  sep=",", row.names=FALSE, col.names=FALSE, append=TRUE)
-      
-      write.table("This Web Calculator provides a means to estimates distances associated with the Technical Guidance's PTS onset thresholds. Mitigation and monitoring requirements associated with a Marine Mammal Protection Act (MMPA) authorization or an Endangered Species Act (ESA) consultation or permit are independent management decisions made in the context of the proposed activity and comprehensive effects analysis, and are beyond the scope of the Technical Guidance and the Web Calculator.",
-                  file=filename0,
-                  sep=",", row.names=TRUE, col.names=FALSE, append=TRUE)
-      
-      write.table("For any comments or questions please contact <amy.scholik@noaa.gov>.",
-                  file=filename0,
-                  sep=",", row.names=TRUE, col.names=FALSE, append=TRUE)
-
-      
-      
-      
-      
-      
-      # write.csv(datasetInput(), file, row.names = FALSE)
     }
   )
   

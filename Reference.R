@@ -58,7 +58,7 @@ library(shinyBS)
 require(V8)
 library(DT)
 library(ggplot2)
-
+library(writexl)
 library(knitr)
 library(markdown)
 # #https://stackoverflow.com/questions/33499651/rmarkdown-in-shiny-application
@@ -71,7 +71,7 @@ library(shinythemes)
 library(shinydashboard)
 
 # install.packages("shiny.router")
-library(shiny.router)
+# library(shiny.router)
 
 #######KNOWNS: FUNCTIONS############
 
