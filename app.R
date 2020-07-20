@@ -1,9 +1,21 @@
 #########INTRODUCTION###################
 # Underwater Thresholds for Onset of Permanent and Temporary Threshold Shifts (Version 2.0)
 # Writtiten by Emily Markowitz
-# August 2018
-# written on R version 3.4.1 (2017-06-30) -- "Single Candle"
-# Version 1.0.153 - ? 2009-2017 RStudio, Inc.
+# August 2020
+# platform       x86_64-w64-mingw32          
+# arch           x86_64                      
+# os             mingw32                     
+# system         x86_64, mingw32             
+# status                                     
+# major          4                           
+# minor          0.0                         
+# year           2020                        
+# month          04                          
+# day            24                          
+# svn rev        78286                       
+# language       R                           
+# version.string R version 4.0.0 (2020-04-24)
+# nickname       Arbor Day 
 # https://jmlondon.shinyapps.io/AcousticThresholds/
 
 

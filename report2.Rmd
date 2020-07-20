@@ -1,7 +1,7 @@
 ---
 title: ""
 author: ""
-date: "V1.0, July 2019"
+date: "V1.0, July 2020"
 output: 
   html_document:
     # mathjax: https://d3eoax9i5htok0.cloudfront.net/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
