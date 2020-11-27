@@ -4,6 +4,17 @@
 
 Find the app in action here: https://jmlondon.shinyapps.io/AcousticThresholds/
 
+**Emily Markowitz** (Emily.Markowitz AT noaa.gov)
+
+Alaska Fisheries Science Center, National Marine
+
+Fisheries Service, National Oceanic and Atmospheric Administration,
+
+Seattle, WA 98195
+
+> Code was developed as part of my 2018 John A. Knauss Marine Policy Sea Grant Fellowship. Fellowship was working in the NMFS Office of Science and Technology's Assessment and Monitoring Group's Protected Species Science Branch. This application was designed and created for the NMFS Office of Protected Resources. 
+
+
 ## Introduction
 
 NOAA's National Marine Fisheries Service (NMFS) recognizes that the permanent threshold shift (PTS) onset thresholds and marine mammal auditory weighting functions provided in the 2018 Revised Technical Guidance for Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing are more complex than NMFS' previous thresholds and that different action proponents may have different levels of modeling capabilities. Thus, NMFS has provided a companion optional Web Calculator tool for those action proponents unable to implement the 2018 Revised Technical Guidance's thresholds in the weighted cumulative sound exposure level (SELcum) and peak sound pressure (PK) level metrics and the associated marine mammal auditory weighting functions.
