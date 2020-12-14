@@ -26,8 +26,11 @@ There is no obligation to use the optional Web Calculator tool. The use of more 
 The optional Web Calculator Tool consists of four main Tabs provided as a ribbon at the top of this and all tabs:
 
 **Introduction:** Current Tab that provides a general introduction to the optional Web Calculator tool
+
 **Optional Calculator:** Tab where action proponent enters project and source information to compute threshold isopleths (meters)
+
 **Weight Factor Adjustments (WFA):** Tab that provides more information on using Weighting Factor Adjustments (WFA) used to incorporate weighting functions* in to isopleth calculations.
+
 **Glossary and Literature Cited:** Tab that provides a list of abbreviations and glossary terms found in the optional Web Calculator Tool. It also provides a list of literature cited.
 
 ## NOAA README
