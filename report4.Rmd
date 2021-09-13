@@ -1,5 +1,5 @@
 ---
-title: ""
+title: "NOAA Fisheries Marine Mammal Acoustic Thresholds Web Application"
 author: ""
 date: "V1.0, July 2019"
 output: 
@@ -32,7 +32,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 <h2><i>Summary of Results</i></h2>
 
-<h3>This report was generated on `r {(Sys.time())}`</h3>
+<h3>This report was generated on `r {(format(Sys.time(), "%A %B %d %Y %X %Z"))}`</h3>
 <hr noshade>
 
 <h2><b>Project Information</b></h2>

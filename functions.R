@@ -48,42 +48,39 @@
 # input$SoundLevelMetrics<-".1"
 
 #########LIBRARY FUNCTIONS###################
-# dir0<-"C:/Users/Emii/Documents/Homework/Knauss/AcousticThresholds/"
-# setwd(dir0)
+# Install libraries ------------------------------------------------------------
 
-#install.packages("ui8")
-# install.packages("shiny")
-# install.packages("shinyjs")
-# install.packages("knitr")
-# install.packages("shinythemes")
+PKG <- c(
+  # Tidy
+  "magrittr",
+  "dplyr",
 
-library(shiny)
-library(knitr)
-library(kableExtra)
-library(magrittr)
-library(dplyr)
-library(kableExtra)
-library(formattable)
-# https://stackoverflow.com/questions/33807945/shiny-updateselectinput-for-multiple-inputs
-library(shinyjs)
-library(shinyBS)
-require(V8)
-library(DT)
-library(ggplot2)
-library(writexl)
-library(knitr)
-library(markdown)
-# #https://stackoverflow.com/questions/33499651/rmarkdown-in-shiny-application
+  # Visualizing data
+  "DT",
+  "writexl",
+  # "formattable",
 
-library(shinythemes)
+  # knit r markdown documents
+  "knitr",
+  "markdown", # https://stackoverflow.com/questions/33499651/rmarkdown-in-shiny-application
+  "kableExtra",
+  
+  # Shiny Dev
+  "shiny",
+  "shinythemes",
+  # "shinydashboard", 
+  "shinyjs"  # https://stackoverflow.com/questions/33807945/shiny-updateselectinput-for-multiple-inputs
+  # "shinyBS"
+  # "V8",  
+  # "shiny.router" # install.packages("shiny.router")  # devtools::install_github("Appsilon/shiny.router")
+)
 
-# install.packages("devtools")
-# devtools::install_github("Appsilon/shiny.router")
-# library(shiny.router)
-library(shinydashboard)
+for (p in PKG) {
+  if(!require(p,character.only = TRUE)) {  
+    install.packages(p)
+    require(p,character.only = TRUE)}
+}
 
-# install.packages("shiny.router")
-# library(shiny.router)
 
 #######KNOWNS: FUNCTIONS############
 

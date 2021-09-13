@@ -4,21 +4,17 @@
 # August 2020
 # https://jmlondon.shinyapps.io/AcousticThresholds/
 
-
-# PACKAGES ---------------------------------------------------------------------
-# Need for running Shiny apps
-
 # SOURCE DATA ------------------------------------------------------------------
-source("Reference.R")
+source("functions.R")
 
 # SHINYAPP() -------------------------------------------------------------------
 ui <- fluidPage(
   #########***HEADER#########
-  useShinyjs(),
-  extendShinyjs(text = jsCode1, functions = c("backgroundCol")),
+  shinyjs::useShinyjs(),
+  shinyjs::extendShinyjs(text = jsCode1, functions = c("backgroundCol")),
   theme = shinytheme("flatly"),
   # shinythemes::themeSelector(),
-
+  
   titlePanel(
     windowTitle = "Marine Mammal Acoustic Technical Guidance (Web App) | NOAA Fisheries",
     title = tags$head(tags$link(rel="shortcut icon", 
@@ -27,295 +23,300 @@ ui <- fluidPage(
   navbarPage(
     title = imageOutput(outputId = "Image",width=1000/25,height=1000/25,
                         hover = "National Oceanic and Atmospheric Administration (NOAA)"),  #https://rdrr.io/cran/shiny/man/renderImage.html
-
-# ui <- navbarPage( #fluidPage(
-#
-#   theme = shinytheme("flatly"),
-  # shinythemes::themeSelector(),
-
-
-  # ),
-
-  # tabsetPanel(id = "panels", ###https://stackoverflow.com/questions/34315485/linking-to-a-tab-or-panel-of-a-shiny-app ###How to insert links to pages in the framework
-
-  # navbarPage(#https://stackoverflow.com/questions/24705431/how-can-i-insert-an-image-into-the-navbar-on-a-shiny-navbarpage
-  # title = imageOutput(outputId = "Image",width=1000/25,height=1000/25,
-  #                     hover = "National Oceanic and Atmospheric Administration (NOAA)"),  #https://rdrr.io/cran/shiny/man/renderImage.html
-  # router_ui(),
-  # tabPanel(title = tags$ul(a(class = "item", href = route_link("Introduction"), "Introduction"))),
-  # tabPanel(title = tags$ul(a(class = "item", href = route_link("Calculator"), "Optional Calculator"))),
-  # tabPanel(title = tags$ul(a(class = "item", href = route_link("WFA"), "Weight Factor Adjustments (WFA)"))),
-  # tabPanel(title = tags$ul(a(class = "item", href = route_link("Gloss"), "Glossary and Literature Cited")))
-############PAGES###########
-#######***TAB CALCULATOR#################
-# Calculator0<-
-  tabPanel("Calculator",
-                      column(2,
-                             # tabPanel("PROJECT INFORMATION",
-                             wellPanel(
-                               #######***---STEP 1########
-                               h4(strong("Step 1: PROJECT INFORMATION"),
-                                  tags$style(type = "text/css", "#q_step1 {vertical-align: top;}"),
-                                  bsButton("q_step1", label = "", icon = icon("question"), style = "info", size = "extra-small")
-                               ),
-
-                               bsPopover(id = "q_step1", title = "Project Information",
-                                         content = paste0("If the user needs more room to enter their responce, they may expand the extents of the text boxes by dragging the icon in the lower right corner of the box."
-                                         ),
-                                         placement = "right",
-                                         trigger = "focus",
-                                         options = list(container = "body")
-                               ),
-
-                               textAreaInput(inputId = "Client",
-                                             label = "Project Title",
-                                             value = "", rows = 5),
-
-                               textAreaInput(inputId = "ProjectName",
-                                             label = "Project Contact",
-                                             value = "", rows = 5),
-
-                               textAreaInput(inputId = "ProjectDescription",
-                                             label = "Project/Source Information (Including Assumptions)",
-                                             value = "", rows = 10)
-                             )),
-                      #######***---STEP 2########
-                      column(2,
-                             wellPanel(
-                               h4(strong("Step 2: SOUND SOURCE AND SOUND METRIC")),
-
-                               h5(strong("Sound Source"),
-                                  tags$style(type = "text/css", "#q_step2a {vertical-align: top;}"),
-                                  bsButton("q_step2a", label = "", icon = icon("question"), style = "info", size = "extra-small")
-                               ),
-                               bsPopover(id = "q_step2a", title = "Sound Source/Category",
-                                         content = paste0("By clicking <i>Other</i> a new dropdown menu will appear with sound categories so you may choose the category of your sound."
-                                         ),
-                                         placement = "right",
-                                         trigger = "focus",
-                                         options = list(container = "body")
-                               ),
-
-
-                               selectInput(inputId = "SoundSource", label="",
-                                           choices=methods.SoundSource, selected = "A"),
-                               uiOutput("SoundCatagory"),
-                               h5(strong("Source Level Metric for Calculating Cumulative Sound Exposure Level"),
-                                  tags$style(type = "text/css", "#q_step2b {vertical-align: top;}"),
-                                  bsButton("q_step2b", label = "", icon = icon("question"), style = "info", size = "extra-small")
-                               ),
-                               bsPopover(id = "q_step2b", title = "Source Level Metric for Calculating Cumulative Sound Exposure Level",
-                                         content = paste0("For impulsive sound sources, the peak sound pressure level source level is also needed (Step 3)"),
-                                         placement = "right",
-                                         trigger = "focus",
-                                         options = list(container = "body")
-                               ),
-                               uiOutput("SoundLevelMetrics")
-                               # uiOutput("SoundMetric_hover")
-
-                             ),
-                             #######***---STEP 3########
-                             wellPanel(
-                               h4(strong("Step 3: INCORPORATING AUDITORY WEIGHTING FUNCTIONS"),
-                                  tags$style(type = "text/css", "#q_step3 {vertical-align: top;}"),
-                                  bsButton("q_step3", label = "", icon = icon("question"),
-                                           style = "info", size = "extra-small")),
-
-                               bsPopover(id = "q_step3", title = "Incorporating Auditory Weighting Functions",
-                                         content = paste0("Additional information associated with weighting  (i.e., user should provide additional information to support previous choice). For example, if able to provide 95% frequency contour or relying upon the source spectrum, the user should provide documentation supporting this decision."
-                                         ),
-                                         placement = "right",
-                                         trigger = "focus",
-                                         options = list(container = "body")),
-
-                               # uiOutput("howtoweight_band"),
-                               # uiOutput("howtoweight_band_hover"),
-                               uiOutput("methods.BroadNarrow")
-                               # uiOutput("methods.BroadNarrow_hover"),
-
-                             )
+    
+    # ui <- navbarPage( #fluidPage(
+    #
+    #   theme = shinytheme("flatly"),
+    # shinythemes::themeSelector(),
+    
+    
+    # ),
+    
+    # tabsetPanel(id = "panels", ###https://stackoverflow.com/questions/34315485/linking-to-a-tab-or-panel-of-a-shiny-app ###How to insert links to pages in the framework
+    
+    # navbarPage(#https://stackoverflow.com/questions/24705431/how-can-i-insert-an-image-into-the-navbar-on-a-shiny-navbarpage
+    # title = imageOutput(outputId = "Image",width=1000/25,height=1000/25,
+    #                     hover = "National Oceanic and Atmospheric Administration (NOAA)"),  #https://rdrr.io/cran/shiny/man/renderImage.html
+    # router_ui(),
+    # tabPanel(title = tags$ul(a(class = "item", href = route_link("Introduction"), "Introduction"))),
+    # tabPanel(title = tags$ul(a(class = "item", href = route_link("Calculator"), "Optional Calculator"))),
+    # tabPanel(title = tags$ul(a(class = "item", href = route_link("WFA"), "Weight Factor Adjustments (WFA)"))),
+    # tabPanel(title = tags$ul(a(class = "item", href = route_link("Gloss"), "Glossary and Literature Cited")))
+    
+    # PAGES --------------------------------------------------------------------
+    
+    # *** TAB CALCULATOR -------------------------------------------------------
+    
+    # Calculator0<-
+    tabPanel("Calculator",
+             column(2,
+                    # tabPanel("PROJECT INFORMATION",
+                    wellPanel(
+                      # ***---STEP 1 -------------------------------------------
+                      h4(strong("Step 1: PROJECT INFORMATION"),
+                         tags$style(type = "text/css", "#q_step1 {vertical-align: top;}"),
+                         bsButton("q_step1", label = "", icon = icon("question"), style = "info", size = "extra-small")
                       ),
-                      #######***---STEP 4########
-                      column(2,
-                             wellPanel(
-                               h4(strong("Step 4: THRESHOLD CALCULATION INPUTS"),
-                                  tags$style(type = "text/css", "#q_step4 {vertical-align: top;}"),
-                                  bsButton("q_step4", label = "", icon = icon("question"), style = "info", size = "extra-small")
-                               ),
-
-                               bsPopover(id = "q_step4", title = "Threshold Calculation Inputs",
-                                         content = paste0("Missing or incorrect values will be highlighted in orange. Once a acceptable value has been entered, the box field will no longer be highlighted. The range of acceptable values are noted by clicking and hovering over the input box. "
-                                         ),
-                                         placement = "right",
-                                         trigger = "focus",
-                                         options = list(container = "body")
-                               ),
-                               uiOutput("ui2"),
-                               uiOutput("ui3"),
-                               uiOutput("ui4"),
-                               uiOutput("ui5"),
-                               uiOutput("ui6"),
-                               uiOutput("ui7"),
-                               uiOutput("ui8"),
-                               uiOutput("ui9")#,
-                             ),
-                             #######***---STEP 5########
-                             wellPanel(
-                               h4(strong("Step 5: WEIGHTING FUNCTION PARAMETERS"),
-                                  tags$style(type = "text/css", "#q_step5 {vertical-align: top;}"),
-                                  bsButton("q_step5", label = "", icon = icon("question"), style = "info", size = "extra-small")
-                               ),
-
-                               bsPopover(id = "q_step5", title = "Weighting Function Parameters",
-                                         content = paste0("Missing or incorrect values will be highlighted in orange. Once a acceptable value has been entered, the box field will no longer be highlighted. The range of acceptable values are noted by clicking and hovering over the input box. If using <i>multiple frequencies</i> and inputing individual adjustment values, the user does not have to enter a value for each population to recieve an output."
-                                         ),
-                                         placement = "right",
-                                         trigger = "focus",
-                                         options = list(container = "body")),
-                               uiOutput("ui1wtitle"),
-                               uiOutput("ui1w1"),
-                               uiOutput("ui1w2"),
-                               uiOutput("ui1w3"),
-                               uiOutput("ui1w4"),
-                               uiOutput("ui1w5"),
-                               uiOutput("ui1")
-                             )),
-
-                      #######***---RESULTS########
-                      column(6,
-                             h2("Results"),
-                             wellPanel(style = "background-color: #c8e6f4; overflow-x:scroll", #https://www.google.com/search?q=color+%23ffffff&rlz=1C1PRFI_enUS731US731&oq=color+%23ffffff&aqs=chrome..69i57.3855j1j7&sourceid=chrome&ie=UTF-8
-                                       h4("WEIGHTING FUNCTION ADJUSTMENTS (dB)"),
-                                       # htmlOutput("weight3"),
-                                       dataTableOutput(outputId = "weight4"),
-                                       uiOutput("weight5warning")
-                             ),
-
-                             wellPanel(style = "background-color: #c8e6f4; overflow-x:scroll", #https://www.google.com/search?q=color+%23ffffff&rlz=1C1PRFI_enUS731US731&oq=color+%23ffffff&aqs=chrome..69i57.3855j1j7&sourceid=chrome&ie=UTF-8
-                                       h4("THRESHOLD ISOPLETHS RESULTS"),
-                                       p("Underwater Acoustic Thresholds"),
-                                       dataTableOutput(outputId = "text_calc"),
-                                       uiOutput("weight4warning"),
-
-                                       # useShinyjs(),
-                                       # extendShinyjs(text = jsCode),
-                                       # actionButton("print", "PRINT"),
-
-                                       ###R MARKDOWN REPORT
-                                       downloadButton("report", "Generate Report"), 
-                                       downloadButton("downloadData", "Download Excel File")
-
-                             )
-                      )
-),
-########***TAB INTRODUCTION################
-# Introduction0 <-
-tabPanel(title = "Introduction",
-         column(12,  wellPanel(
-           imageOutput(outputId = "ImageFull",width=600,height=144),
-           h2("Optional Web Calculator Tool 2018 Revision (Version 1.0) to:"),
-           h1(HTML("Technical Guidance For Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing")),
-           h2(HTML("<i>NOAA Technical Memorandum NMFS-OPR-59</i>"))
-         ),
-         wellPanel(
-           h3("Introduction"),
-           p(HTML("NOAA's National Marine Fisheries Service (NMFS) recognizes that the permanent threshold shift (PTS) onset thresholds and marine mammal auditory weighting functions provided in the 2018 Revised Technical Guidance for Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing are more complex than NMFS' previous thresholds and that different action proponents may have different levels of modeling capabilities. Thus, NMFS has provided a companion optional Web Calculator tool for those action proponents unable to implement the 2018 Revised Technical Guidance's thresholds in the weighted cumulative sound exposure level (SEL<sub>cum</sub>) and peak sound pressure (PK) level metrics and the associated marine mammal auditory weighting functions.")
-           ),
-           br(),
-           p(HTML("There is <i>no obligation</i> to use the <i>optional</i> Web Calculator tool. The use of more sophisticated exposure modeling or consideration of additional activity‐, source-, or location‐specific factors, if possible, is encouraged.")
-           )
-         ), wellPanel(
-           h3("Using the Optional Web Calculator Tool"),
-           br(),
-           p("The optional Web Calculator Tool consists of four main Tabs provided as a ribbon at the top of this and all tabs:"
-           ),
-
-           # tags$ul(
-           #   tags$li(a(class = "item", href = route_link("Introduction"), "Introduction"),
-           #           HTML(": Current Tab that provides a general introduction to the optional Web Calculator tool")),
-           #   tags$li(a(class = "item", href = route_link("Calculator"), "Optional Calculator"),
-           #           HTML(": Tab where action proponent enters project and source information to compute threshold isopleths (meters)")),
-           #   tags$li(a(class = "item", href = route_link("WFA"), "Weight Factor Adjustments (WFA)"),
-           #           HTML(": Tab that provides more information on using Weighting Factor Adjustments (WFA) used to incorporate weighting functions* in to isopleth calculations.")),
-           #   tags$li(a(class = "item", href = route_link("Gloss"), "Glossary and Literature Cited"),
-           #           HTML(": Tab that provides a list of abbreviations and glossary terms found in the optional Web Calculator Tool. It also provides a list of literature cited."))
-           # ),
-
-           tags$ul(
-             tags$li(HTML("<b>Introduction</b>: Current Tab that provides a general introduction to the optional Web Calculator tool")),
-             tags$li(HTML("<b>Optional Calculator</b>: Tab where action proponent enters project and source information to compute threshold isopleths (meters)")),
-             tags$li(HTML("<b>Weight Factor Adjustments (WFA)</b>: Tab that provides more information on using Weighting Factor Adjustments (WFA) used to incorporate weighting functions* in to isopleth calculations.")),
-             tags$li(HTML("<b>Glossary and Literature Cited</b>: Tab that provides a list of abbreviations and glossary terms found in the optional Web Calculator Tool. It also provides a list of literature cited."))
-           )
-         ), wellPanel(
-           h3("Marine Mammal Hearing Groups"),
-           dataTableOutput(outputId = "marinemammalhearinggroups"),
-           br(),
-           em(HTML("*WFAs consider marine mammal auditory weighting functions by focusing on a single frequency for those who cannot fully apply auditory weighting functions associated with the SEL<sub>cum</sub> metric thresholds.")
-           )
-         ), wellPanel(
-           h3("NMFS also provides a User Manual for the optional Web Calculator Tool (see links below)."),
-           p(a("NOAA Technical Guidance Web Site",
-               href="https://www.fisheries.noaa.gov/national/marine-mammal-protection/marine-mammal-acoustic-technical-guidance",
-               target="_blank")),
-           p(a("2018 Revision to Technical Guidance for Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing",
-               href="https://www.fisheries.noaa.gov/webdam/download/75962998",
-               target="_blank"))#,
-           # p(a("User Manual for Web Calculator (optional)",
-           #     href="https://www.fisheries.noaa.gov/webdam/download/75963103",
-           #     target="_blank")),
-           # p(a("User Excel Spreadsheet",
-           #     href="https://www.fisheries.noaa.gov/webdam/download/75963097",
-           #     target="_blank"))
-
-         ), wellPanel(
-           h3("Note:"),
-           p("This Web Calculator provides a means to estimates distances associated with the Technical Guidance's PTS onset thresholds. Mitigation and monitoring requirements associated with a Marine Mammal Protection Act (MMPA) authorization or an Endangered Species Act (ESA) consultation or permit are independent management decisions made in the context of the proposed activity and comprehensive effects analysis, and are beyond the scope of the Technical Guidance and the Web Calculator."
-           ),
-           h3("Disclaimer:"),
-           p("NMFS has provided this Web Calculator as an optional tool to provide estimated effect distances (i.e., isopleths) where PTS onset thresholds may be exceeded. Results provided by this calculator do not represent the entirety of the comprehensive effects analysis, but rather serve as one tool to help evaluate the effects of a proposed action on marine mammal hearing and make findings required by NOAA's various statutes. Input values are the responsibility of the individual user."),
-           br(),
-
-           em("For any comments or questions please contact amy.scholik@noaa.gov.")
-         )
-         )
-         ),
-
-###***TAB WEIGHT####
-# WFA0<-
-  tabPanel("Weight Factor Adjustments (WFA)",
-               column(12, wellPanel(
-                 h2("Suggested Broadband WFAs"),
-                 br(),
-                 p("Table 1: Suggested (default*) weighting factor adjustments (WFA). NMFS acknowledges default WFAs are likely conservative."),
-                 dataTableOutput("weight5"),
-                 br(),
-                 p("* NMFS acknowledges default WFAs are likely conservative. ")
+                      
+                      bsPopover(id = "q_step1", title = "Project Information",
+                                content = paste0("If the user needs more room to enter their responce, they may expand the extents of the text boxes by dragging the icon in the lower right corner of the box."
+                                ),
+                                placement = "right",
+                                trigger = "focus",
+                                options = list(container = "body")
+                      ),
+                      
+                      textAreaInput(inputId = "Client",
+                                    label = "Project Title",
+                                    value = "", rows = 5),
+                      
+                      textAreaInput(inputId = "ProjectName",
+                                    label = "Project Contact",
+                                    value = "", rows = 5),
+                      
+                      textAreaInput(inputId = "ProjectDescription",
+                                    label = "Project/Source Information (Including Assumptions)",
+                                    value = "", rows = 10)
+                    )),
+             # ***---STEP 2 -------------------------------------------
+             column(2,
+                    wellPanel(
+                      h4(strong("Step 2: SOUND SOURCE AND SOUND METRIC")),
+                      
+                      h5(strong("Sound Source"),
+                         tags$style(type = "text/css", "#q_step2a {vertical-align: top;}"),
+                         bsButton("q_step2a", label = "", icon = icon("question"), style = "info", size = "extra-small")
+                      ),
+                      bsPopover(id = "q_step2a", title = "Sound Source/Category",
+                                content = paste0("By clicking <i>Other</i> a new dropdown menu will appear with sound categories so you may choose the category of your sound."
+                                ),
+                                placement = "right",
+                                trigger = "focus",
+                                options = list(container = "body")
+                      ),
+                      
+                      
+                      selectInput(inputId = "SoundSource", label="",
+                                  choices=methods.SoundSource, selected = "A"),
+                      uiOutput("SoundCatagory"),
+                      h5(strong("Source Level Metric for Calculating Cumulative Sound Exposure Level"),
+                         tags$style(type = "text/css", "#q_step2b {vertical-align: top;}"),
+                         bsButton("q_step2b", label = "", icon = icon("question"), style = "info", size = "extra-small")
+                      ),
+                      bsPopover(id = "q_step2b", title = "Source Level Metric for Calculating Cumulative Sound Exposure Level",
+                                content = paste0("For impulsive sound sources, the peak sound pressure level source level is also needed (Step 3)"),
+                                placement = "right",
+                                trigger = "focus",
+                                options = list(container = "body")
+                      ),
+                      uiOutput("SoundLevelMetrics")
+                      # uiOutput("SoundMetric_hover")
+                      
+                    ),
+                    # ***---STEP 3 -------------------------------------------
+                    wellPanel(
+                      h4(strong("Step 3: INCORPORATING AUDITORY WEIGHTING FUNCTIONS"),
+                         tags$style(type = "text/css", "#q_step3 {vertical-align: top;}"),
+                         bsButton("q_step3", label = "", icon = icon("question"),
+                                  style = "info", size = "extra-small")),
+                      
+                      bsPopover(id = "q_step3", title = "Incorporating Auditory Weighting Functions",
+                                content = paste0("Additional information associated with weighting  (i.e., user should provide additional information to support previous choice). For example, if able to provide 95% frequency contour or relying upon the source spectrum, the user should provide documentation supporting this decision."
+                                ),
+                                placement = "right",
+                                trigger = "focus",
+                                options = list(container = "body")),
+                      
+                      # uiOutput("howtoweight_band"),
+                      # uiOutput("howtoweight_band_hover"),
+                      uiOutput("methods.BroadNarrow")
+                      # uiOutput("methods.BroadNarrow_hover"),
+                      
+                    )
+             ),
+             # ***---STEP 4 -------------------------------------------
+             column(2,
+                    wellPanel(
+                      h4(strong("Step 4: THRESHOLD CALCULATION INPUTS"),
+                         tags$style(type = "text/css", "#q_step4 {vertical-align: top;}"),
+                         bsButton("q_step4", label = "", icon = icon("question"), style = "info", size = "extra-small")
+                      ),
+                      
+                      bsPopover(id = "q_step4", title = "Threshold Calculation Inputs",
+                                content = paste0("Missing or incorrect values will be highlighted in orange. Once a acceptable value has been entered, the box field will no longer be highlighted. The range of acceptable values are noted by clicking and hovering over the input box. "
+                                ),
+                                placement = "right",
+                                trigger = "focus",
+                                options = list(container = "body")
+                      ),
+                      uiOutput("ui2"),
+                      uiOutput("ui3"),
+                      uiOutput("ui4"),
+                      uiOutput("ui5"),
+                      uiOutput("ui6"),
+                      uiOutput("ui7"),
+                      uiOutput("ui8"),
+                      uiOutput("ui9")#,
+                    ),
+                    # ***---STEP 5 -------------------------------------------
+                    wellPanel(
+                      h4(strong("Step 5: WEIGHTING FUNCTION PARAMETERS"),
+                         tags$style(type = "text/css", "#q_step5 {vertical-align: top;}"),
+                         bsButton("q_step5", label = "", icon = icon("question"), style = "info", size = "extra-small")
+                      ),
+                      
+                      bsPopover(id = "q_step5", title = "Weighting Function Parameters",
+                                content = paste0("Missing or incorrect values will be highlighted in orange. Once a acceptable value has been entered, the box field will no longer be highlighted. The range of acceptable values are noted by clicking and hovering over the input box. If using <i>multiple frequencies</i> and inputing individual adjustment values, the user does not have to enter a value for each population to recieve an output."
+                                ),
+                                placement = "right",
+                                trigger = "focus",
+                                options = list(container = "body")),
+                      uiOutput("ui1wtitle"),
+                      uiOutput("ui1w1"),
+                      uiOutput("ui1w2"),
+                      uiOutput("ui1w3"),
+                      uiOutput("ui1w4"),
+                      uiOutput("ui1w5"),
+                      uiOutput("ui1")
+                    )),
+             
+             # *** TAB RESULTS -------------------------------------------
+             column(6,
+                    h2("Results"),
+                    wellPanel(style = "background-color: #c8e6f4; overflow-x:scroll", #https://www.google.com/search?q=color+%23ffffff&rlz=1C1PRFI_enUS731US731&oq=color+%23ffffff&aqs=chrome..69i57.3855j1j7&sourceid=chrome&ie=UTF-8
+                              h4("WEIGHTING FUNCTION ADJUSTMENTS (dB)"),
+                              # htmlOutput("weight3"),
+                              dataTableOutput(outputId = "weight4"),
+                              uiOutput("weight5warning")
+                    ),
+                    
+                    wellPanel(style = "background-color: #c8e6f4; overflow-x:scroll", #https://www.google.com/search?q=color+%23ffffff&rlz=1C1PRFI_enUS731US731&oq=color+%23ffffff&aqs=chrome..69i57.3855j1j7&sourceid=chrome&ie=UTF-8
+                              h4("THRESHOLD ISOPLETHS RESULTS"),
+                              p("Underwater Acoustic Thresholds"),
+                              dataTableOutput(outputId = "text_calc"),
+                              uiOutput("weight4warning"),
+                              
+                              # useShinyjs(),
+                              # extendShinyjs(text = jsCode),
+                              # actionButton("print", "PRINT"),
+                              
+                              ###R MARKDOWN REPORT
+                              downloadButton("report", "Generate Report"), 
+                              downloadButton("downloadData", "Download Excel File")
+                              
+                    )
+             )
+    ),
+    # *** TAB INTRO ------------------------------------------------------------
+    
+    # Introduction0 <-
+    tabPanel(title = "Introduction",
+             column(12,  wellPanel(
+               imageOutput(outputId = "ImageFull",width=600,height=144),
+               h2("Optional Web Calculator Tool 2018 Revision (Version 1.0) to:"),
+               h1(HTML("Technical Guidance For Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing")),
+               h2(HTML("<i>NOAA Technical Memorandum NMFS-OPR-59</i>"))
+             ),
+             wellPanel(
+               h3("Introduction"),
+               p(HTML("NOAA's National Marine Fisheries Service (NMFS) recognizes that the permanent threshold shift (PTS) onset thresholds and marine mammal auditory weighting functions provided in the 2018 Revised Technical Guidance for Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing are more complex than NMFS' previous thresholds and that different action proponents may have different levels of modeling capabilities. Thus, NMFS has provided a companion optional Web Calculator tool for those action proponents unable to implement the 2018 Revised Technical Guidance's thresholds in the weighted cumulative sound exposure level (SEL<sub>cum</sub>) and peak sound pressure (PK) level metrics and the associated marine mammal auditory weighting functions.")
+               ),
+               br(),
+               p(HTML("There is <i>no obligation</i> to use the <i>optional</i> Web Calculator tool. The use of more sophisticated exposure modeling or consideration of additional activity‐, source-, or location‐specific factors, if possible, is encouraged.")
                )
+             ), wellPanel(
+               h3("Using the Optional Web Calculator Tool"),
+               br(),
+               p("The optional Web Calculator Tool consists of four main Tabs provided as a ribbon at the top of this and all tabs:"
+               ),
+               
+               # tags$ul(
+               #   tags$li(a(class = "item", href = route_link("Introduction"), "Introduction"),
+               #           HTML(": Current Tab that provides a general introduction to the optional Web Calculator tool")),
+               #   tags$li(a(class = "item", href = route_link("Calculator"), "Optional Calculator"),
+               #           HTML(": Tab where action proponent enters project and source information to compute threshold isopleths (meters)")),
+               #   tags$li(a(class = "item", href = route_link("WFA"), "Weight Factor Adjustments (WFA)"),
+               #           HTML(": Tab that provides more information on using Weighting Factor Adjustments (WFA) used to incorporate weighting functions* in to isopleth calculations.")),
+               #   tags$li(a(class = "item", href = route_link("Gloss"), "Glossary and Literature Cited"),
+               #           HTML(": Tab that provides a list of abbreviations and glossary terms found in the optional Web Calculator Tool. It also provides a list of literature cited."))
+               # ),
+               
+               tags$ul(
+                 tags$li(HTML("<b>Introduction</b>: Current Tab that provides a general introduction to the optional Web Calculator tool")),
+                 tags$li(HTML("<b>Optional Calculator</b>: Tab where action proponent enters project and source information to compute threshold isopleths (meters)")),
+                 tags$li(HTML("<b>Weight Factor Adjustments (WFA)</b>: Tab that provides more information on using Weighting Factor Adjustments (WFA) used to incorporate weighting functions* in to isopleth calculations.")),
+                 tags$li(HTML("<b>Glossary and Literature Cited</b>: Tab that provides a list of abbreviations and glossary terms found in the optional Web Calculator Tool. It also provides a list of literature cited."))
                )
-           ),
+             ), wellPanel(
+               h3("Marine Mammal Hearing Groups"),
+               dataTableOutput(outputId = "marinemammalhearinggroups"),
+               br(),
+               em(HTML("*WFAs consider marine mammal auditory weighting functions by focusing on a single frequency for those who cannot fully apply auditory weighting functions associated with the SEL<sub>cum</sub> metric thresholds.")
+               )
+             ), wellPanel(
+               h3("NMFS also provides a User Manual for the optional Web Calculator Tool (see links below)."),
+               p(a("NOAA Technical Guidance Web Site",
+                   href="https://www.fisheries.noaa.gov/national/marine-mammal-protection/marine-mammal-acoustic-technical-guidance",
+                   target="_blank")),
+               p(a("2018 Revision to Technical Guidance for Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing",
+                   href="https://www.fisheries.noaa.gov/webdam/download/75962998",
+                   target="_blank"))#,
+               # p(a("User Manual for Web Calculator (optional)",
+               #     href="https://www.fisheries.noaa.gov/webdam/download/75963103",
+               #     target="_blank")),
+               # p(a("User Excel Spreadsheet",
+               #     href="https://www.fisheries.noaa.gov/webdam/download/75963097",
+               #     target="_blank"))
+               
+             ), wellPanel(
+               h3("Note:"),
+               p("This Web Calculator provides a means to estimates distances associated with the Technical Guidance's PTS onset thresholds. Mitigation and monitoring requirements associated with a Marine Mammal Protection Act (MMPA) authorization or an Endangered Species Act (ESA) consultation or permit are independent management decisions made in the context of the proposed activity and comprehensive effects analysis, and are beyond the scope of the Technical Guidance and the Web Calculator."
+               ),
+               h3("Disclaimer:"),
+               p("NMFS has provided this Web Calculator as an optional tool to provide estimated effect distances (i.e., isopleths) where PTS onset thresholds may be exceeded. Results provided by this calculator do not represent the entirety of the comprehensive effects analysis, but rather serve as one tool to help evaluate the effects of a proposed action on marine mammal hearing and make findings required by NOAA's various statutes. Input values are the responsibility of the individual user."),
+               br(),
+               
+               em("For any comments or questions please contact amy.scholik@noaa.gov.")
+             )
+             )
+    ),
+    
+    # *** TAB WEIGHT -------------------------------------------
+    # WFA0<-
+    tabPanel("Weight Factor Adjustments (WFA)",
+             column(12, wellPanel(
+               h2("Suggested Broadband WFAs"),
+               br(),
+               p("Table 1: Suggested (default*) weighting factor adjustments (WFA). NMFS acknowledges default WFAs are likely conservative."),
+               dataTableOutput("weight5"),
+               br(),
+               p("* NMFS acknowledges default WFAs are likely conservative. ")
+             )
+             )
+    ),
+    
+    # *** TAB GLOSSARY AND LITERATUre CITED -------------------------------------------
 
-######***TAB GLOSSARY AND LITERATUre CITED########
-# Gloss0<-
-  tabPanel("Glossary and Literature Cited",
-                 h1("Abbreviations, Acronyms, Symbols, and Glossary"),
-                 column(3, wellPanel(
-
-                   h3("Abbreviations"),
-                   dataTableOutput("acronyms")
-                 )),
-                 column(9, wellPanel(
-
-                   h3("Glossary"),
-                   dataTableOutput("gloss")
-                 )),
-
-                 column(12, wellPanel(
-                   h3("Literature Cited"),
-                   tableOutput("infot2")
-                 ))
-)
-)
+    # Gloss0<-
+    tabPanel("Glossary and Literature Cited",
+             h1("Abbreviations, Acronyms, Symbols, and Glossary"),
+             column(3, wellPanel(
+               
+               h3("Abbreviations"),
+               dataTableOutput("acronyms")
+             )),
+             column(9, wellPanel(
+               
+               h3("Glossary"),
+               dataTableOutput("gloss")
+             )),
+             
+             column(12, wellPanel(
+               h3("Literature Cited"),
+               tableOutput("infot2")
+             ))
+    )
+  )
   # tags$footer(div(imageOutput(outputId = "Image",width=1000/15,height=1000/15),
   #                 HTML("NOAA Fisheries Technical Guidance For Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing (NOAA Technical Memorandum NMFS-OPR-59), <i>V1.0, December 2018</i>")),
   #             align = "center", style = "
@@ -331,7 +332,7 @@ tabPanel(title = "Introduction",
 server <- function(input, output, session) {
   # router(input, output, session)
   
-  ########*** HEADER#############
+  # *** HEADER -------------------------------------------
   output$ImageFull <- renderImage({
     filename <- normalizePath(file.path("./www/noaa_fisheries_small.png"))
     list(src = filename, 
@@ -348,7 +349,8 @@ server <- function(input, output, session) {
     )
   }, deleteFile = FALSE)
   
-  ######***TAB INTRODUCTION##########
+  # *** TAB INTRODUCTION -------------------------------------------
+  
   #https://stackoverflow.com/questions/42047422/create-url-hyperlink-in-r-shiny
   # a("https://www.fisheries.noaa.gov/national/marine-mammal-protection/marine-mammal-acoustic-technical-guidance")
   
@@ -363,7 +365,7 @@ server <- function(input, output, session) {
     return(infot30)
   })
   
-  output$marinemammalhearinggroups <- renderDataTable({
+  output$marinemammalhearinggroups <- DT::renderDataTable({
     MarineMammalHearingGroup1<-matrix(data = c("<b>Low-Frequency (LF) Cetaceans</b>: Baleen whales", 
                                                "<b>Mid-Frequency (MF) Cetaceans</b>: Dolphins, toothed whales, beaked whales, bottlenose whales",
                                                "<b>High-Frequency (HF) Cetaceans</b>: True porpoises, Kogia, river dolphins, <em>cephalorhynchid</em>, <em>Lagenorhynchus cruciger</em>, and <em>L. australis</em>", 
@@ -371,16 +373,19 @@ server <- function(input, output, session) {
                                                "<b>Otariid Pinnipeds (OW)</b>: Sea lions and fur seals"), 
                                       nrow = 5, ncol = 1, byrow = T)
     colnames(MarineMammalHearingGroup1)<-"Hearing Groups"
-    return(datatable(MarineMammalHearingGroup1, 
+    return(DT::datatable(MarineMammalHearingGroup1, 
                      rownames = F, 
                      # caption = 'Table 1: Within the optional Web Calculator Tool, marine mammal hearing groups are defined as follows:',
                      escape = FALSE, 
                      options = list(pageLength = 26, dom = 'tip', dom='t',ordering=F, paging=F)))
   })  
   
-  ####***TAB CACLULATION####
-  ####***---STEP 1####
-  ####***---STEP 2####
+  # *** TAB CALCULATION -------------------------------------------
+  
+  # *** --- STEP 1 -------------------------------------------
+
+  # *** --- STEP 2 -------------------------------------------
+
   output$SoundCatagory <- renderUI({
     if (input$SoundSource == "Other"){
       selectInput(inputId = "SoundCatagory", label = h5("Other: Please Choose Sound Catagory Instead"), 
@@ -405,7 +410,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ####***---STEP 3####
+  # *** --- STEP 3 -------------------------------------------
+  
   #Based on the previous choices, to define broad/narrowband
   
   output$methods.BroadNarrow <- renderUI({
@@ -427,8 +433,10 @@ server <- function(input, output, session) {
     }
   })
   
-  ####***---STEP 4: Single Frequecny####
-  ########***------ui1######
+  # *** --- STEP 4: Single Frequecny -------------------------------------------
+  
+  # *** --- --- ui1 ------------------------------------------------------------
+  
   output$ui1 <- renderUI({
     select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
     if  (input$methods.BroadNarrow=="Narrow0") {
@@ -480,15 +488,17 @@ server <- function(input, output, session) {
     }
   })
   
-  ####***---STEP 4: Multiple Frequecny####
+  # *** --- STEP 4: Multiple Frequecny-------------------------------------------
+  
   output$ui1wtitle <- renderUI({ 
     if (input$methods.BroadNarrow=="Broad0") {
       HTML(paste("<b>Adjustment (dB)</b>", sep = '<br/>'))
     }
   })
   
-  ########***------ui1w1######
-  output$ui1w1 <- renderUI({
+  # *** --- --- ui1w1 ------------------------------------------------------------
+  
+    output$ui1w1 <- renderUI({
     V1<-"Low-Frequency Cetaceans"
     if (is.null(input$methods.BroadNarrow))
       return()
@@ -510,7 +520,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui1w2######
+  # *** --- --- ui1w2 ------------------------------------------------------------
+
   output$ui1w2 <- renderUI({
     V1<-"Mid-Frequency Cetaceans"
     if (is.null(input$methods.BroadNarrow))
@@ -532,7 +543,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui1w3######
+  # *** --- --- ui1w3 ------------------------------------------------------------
+
   output$ui1w3 <- renderUI({
     V1<-"High-Frequency Cetaceans"
     if (is.null(input$methods.BroadNarrow))
@@ -554,7 +566,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui1w4######
+  # *** --- --- ui1w4 ------------------------------------------------------------
+  
   output$ui1w4 <- renderUI({
     V1<-"Phocid Pinnipeds"
     if (is.null(input$methods.BroadNarrow))
@@ -576,7 +589,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui1w5######
+  # *** --- --- ui1w5 ------------------------------------------------------------
+  
   output$ui1w5 <- renderUI({
     V1<-"Otariid Pinnipeds"
     if (is.null(input$methods.BroadNarrow))
@@ -620,8 +634,10 @@ server <- function(input, output, session) {
   #   )
   # })
   
-  ########***---STEP 5##############
-  ########***------ui2######
+  # *** --- STEP 5 -------------------------------------------------------------
+  
+  # *** --- --- ui2 ------------------------------------------------------------
+  
   output$ui2 <- renderUI({
     select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
     
@@ -668,7 +684,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui3######
+  # *** --- --- ui3 ------------------------------------------------------------
+  
   output$ui3 <- renderUI({
     select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
     
@@ -715,8 +732,9 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui4######
-  output$ui4 <- renderUI({
+  # *** --- --- ui24 ------------------------------------------------------------
+
+    output$ui4 <- renderUI({
     select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
     
     if (is.null(select_AA))
@@ -763,7 +781,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui5######
+  # *** --- --- ui5 ------------------------------------------------------------
+
   output$ui5 <- renderUI({
     select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
     
@@ -811,7 +830,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui6######
+  # *** --- --- ui6 ------------------------------------------------------------
+  
   output$ui6 <- renderUI({
     select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
     
@@ -859,7 +879,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui7######
+  # *** --- --- ui7 ------------------------------------------------------------
+  
   output$ui7 <- renderUI({
     select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
     
@@ -907,7 +928,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui8######
+  # *** --- --- ui8 ------------------------------------------------------------
+  
   output$ui8 <- renderUI({
     select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
     
@@ -954,7 +976,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ########***------ui9######
+  # *** --- --- ui9 ------------------------------------------------------------
+  
   output$ui9<- renderUI({
     select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
     
@@ -1005,7 +1028,9 @@ server <- function(input, output, session) {
   
   
   ##########***----RESULTS: THRESHOLDS##########  
+  
   #####-------sformula#####
+  
   sformula <- reactive({
     
     ###Weight Function Calculations
@@ -1357,12 +1382,12 @@ server <- function(input, output, session) {
     return(t(as.vector(weigthtfuncttable1)))
   })
   
-  output$weight4 <- renderDataTable({
-    return(datatable(t(w4formula()), 
+  output$weight4 <- DT::renderDataTable({
+    return(DT::datatable(t(w4formula()), 
                      options = list(pageLength = 10, dom = 'tip', dom='t',ordering=F, paging=F), 
                      rownames = TRUE,
                      escape = FALSE)) 
-  }, rownames = TRUE)  
+  })  # , rownames = TRUE
   
   output$weight5warning <- renderUI({
     
@@ -1383,26 +1408,26 @@ server <- function(input, output, session) {
   
   output$weight4warning <- renderUI({
     str1<-Step4Warning(ui2 = input$ui2, 
-                               ui3 = input$ui3, 
-                               ui4 = input$ui4, 
-                               ui5 = input$ui5, 
-                               ui6 = input$ui6, 
-                               ui7 = input$ui7, 
-                               ui8 = input$ui8, 
-                               ui9 = input$ui9)
+                       ui3 = input$ui3, 
+                       ui4 = input$ui4, 
+                       ui5 = input$ui5, 
+                       ui6 = input$ui6, 
+                       ui7 = input$ui7, 
+                       ui8 = input$ui8, 
+                       ui9 = input$ui9)
     
     return(HTML(paste(str1, sep = '<br/>')))
     
   })
   
   
-  output$text_calc <- renderDataTable({
+  output$text_calc <- DT::renderDataTable({
     if (is.null(sformula()))
       return()
-    return(datatable(t(sformula()), 
+    return(DT::datatable(t(sformula()), 
                      options = list(pageLength = 10, dom = 'tip', dom='t',ordering=F, paging=F), 
                      rownames = TRUE,
-                     escape = FALSE))}, rownames = TRUE)      
+                     escape = FALSE))}) #, rownames = TRUE)      
   
   #PRINT BUTTON
   observeEvent(input$print, {
@@ -1419,38 +1444,38 @@ server <- function(input, output, session) {
       } else {
         meth<-methods.SoundCatagory
       }
-
+      
       select_AA0<-paste0(#input$zero_submenu, ": ",
         SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
-
-
+      
+      
       #########Project Information#########
-
+      
       introinfo<-cbind.data.frame(
         "Project Information" = input$ProjectName,
         "Project Contact" = input$Client,
         "Project/Source Information (Including Assumptions)" = input$ProjectDescription,
         "Incorporate Auditory Weighting Functions" = names(meth[which(meth==SoundEquation(input$SoundSource,
                                                                                           input$SoundCatagory))]))
-
+      
       introinfo<-data.frame(t(introinfo))
       introinfo<-cbind.data.frame(rownames(introinfo), introinfo)
       colnames(introinfo)<-c("", "Project Information")
-
+      
       #########Inputs#########
-
+      
       suminputs<-cbind.data.frame(
         "Sound Source or Source Category" = names(meth[which(meth==SoundEquation(input$SoundSource, input$SoundCatagory))]),
         "Source Level Metric" = names(methods.SoundLevelMetrics[which(methods.SoundLevelMetrics==input$SoundLevelMetrics)]),
         "Weighting" = names(which(methods.BroadNarrow==input$methods.BroadNarrow)),
         "Spreadsheet Page Equivalent" = select_AA0
-        )
-
+      )
+      
       suminputs<-data.frame(t(suminputs))
       colnames(suminputs)<-c("Inputs")
-
-
-
+      
+      
+      
       select_AA<-paste0(SoundEquation(input$SoundSource, input$SoundCatagory), input$SoundLevelMetrics)
       V<-VV[which(VVn==select_AA)]; V<-V[[1]]
       det<-""
@@ -1490,34 +1515,34 @@ server <- function(input, output, session) {
       
       suminputs<-cbind.data.frame(rownames(suminputs), suminputs)
       colnames(suminputs)<-c("", "Inputs")
-
-
-
+      
+      
+      
       
       #############Weighting Function Adjustments##############
       weight4 <- data.frame(w4formula())
       weight4<-cbind.data.frame(rownames(weight4), weight4)
       colnames(weight4)[1]<-""
       # weight4[,1]<-as.character(weight4)
-
-
+      
+      
       ##############Weighting Function Adjustments Warnings#############
       tempweight<-c(as.numeric(as.character(input$ui1w1)),
                     as.numeric(as.character(input$ui1w2)),
                     as.numeric(as.character(input$ui1w3)),
                     as.numeric(as.character(input$ui1w4)),
                     as.numeric(as.character(input$ui1w5)))
-
+      
       step5warning<-data.frame(Step5Warning(tempweight, #Weighting,
-                                 BroadNarrow=input$methods.BroadNarrow,
-                                 SoundSource=input$SoundSource,
-                                 ui1 = input$ui1, html = F))
+                                            BroadNarrow=input$methods.BroadNarrow,
+                                            SoundSource=input$SoundSource,
+                                            ui1 = input$ui1, html = F))
       
       step5warning<-cbind.data.frame(rownames(step5warning), step5warning)
       colnames(step5warning)<-c("", "Weighting Function Adjustments Warnings")
-
+      
       #########Threshold Isopleths Results#########
-
+      
       text_calc0 <- sformula()
       text_calc<-data.frame(matrix(data = NA,
                                    nrow = nrow(text_calc0),
@@ -1528,7 +1553,7 @@ server <- function(input, output, session) {
           text_calc[r,c]<-gsub(pattern = "</b>", replacement = "", x = text_calc[r,c])
         }
       }
-
+      
       text_calc_row<-rownames(text_calc0)
       for(c in 1:length(text_calc_row)) {
         text_calc_row[c]<-gsub(pattern = "<b>", replacement = "", x = text_calc_row[c])
@@ -1536,36 +1561,36 @@ server <- function(input, output, session) {
         text_calc_row[c]<-gsub(pattern = "<sub>", replacement = "", x = text_calc_row[c])
         text_calc_row[c]<-gsub(pattern = "</sub>", replacement = "", x = text_calc_row[c])
       }
-
-     rownames(text_calc)<-(text_calc_row)
-     colnames(text_calc)<-colnames(text_calc0)
-     text_calc<-cbind.data.frame(rownames(text_calc), text_calc)
-     colnames(text_calc)[1]<-""
-     
-     #########Threshold Isopleths Results Warnings#########
-     
+      
+      rownames(text_calc)<-(text_calc_row)
+      colnames(text_calc)<-colnames(text_calc0)
+      text_calc<-cbind.data.frame(rownames(text_calc), text_calc)
+      colnames(text_calc)[1]<-""
+      
+      #########Threshold Isopleths Results Warnings#########
+      
       step4warning<-data.frame(Step4Warning(ui2 = input$ui2,
-                                 ui3 = input$ui3,
-                                 ui4 = input$ui4,
-                                 ui5 = input$ui5,
-                                 ui6 = input$ui6,
-                                 ui7 = input$ui7,
-                                 ui8 = input$ui8,
-                                 ui9 = input$ui9, html = F))
+                                            ui3 = input$ui3,
+                                            ui4 = input$ui4,
+                                            ui5 = input$ui5,
+                                            ui6 = input$ui6,
+                                            ui7 = input$ui7,
+                                            ui8 = input$ui8,
+                                            ui9 = input$ui9, html = F))
       step4warning<-cbind.data.frame(rownames(step4warning), step4warning)
       colnames(step4warning)<-c("","Threshold Isopleths Results Warnings")
       
       #########Disclaimers and Notes#########
       
       DisclNote<-rbind.data.frame("Disclaimer" = "NMFS has provided this Web Calculator as an optional tool to provide estimated effect distances (i.e., isopleths) where PTS onset thresholds may be exceeded. Results provided by this calculator do not represent the entirety of the comprehensive effects analysis, but rather serve as one tool to help evaluate the effects of a proposed action on marine mammal hearing and make findings required by NOAA's various statutes. Input values are the responsibility of the individual user.",
-                            "Notes" = "This Web Calculator provides a means to estimates distances associated with the Technical Guidance's PTS onset thresholds. Mitigation and monitoring requirements associated with a Marine Mammal Protection Act (MMPA) authorization or an Endangered Species Act (ESA) consultation or permit are independent management decisions made in the context of the proposed activity and comprehensive effects analysis, and are beyond the scope of the Technical Guidance and the Web Calculator.", 
-                            "Questions" = "For any comments or questions please contact <amy.scholik@noaa.gov>")
+                                  "Notes" = "This Web Calculator provides a means to estimates distances associated with the Technical Guidance's PTS onset thresholds. Mitigation and monitoring requirements associated with a Marine Mammal Protection Act (MMPA) authorization or an Endangered Species Act (ESA) consultation or permit are independent management decisions made in the context of the proposed activity and comprehensive effects analysis, and are beyond the scope of the Technical Guidance and the Web Calculator.", 
+                                  "Questions" = "For any comments or questions please contact <amy.scholik@noaa.gov>")
       
       DisclNote<-cbind.data.frame(rownames(DisclNote), DisclNote)
       colnames(DisclNote)<-c("", "Disclaimers and Notes")
       
       
-      write_xlsx(x = list(
+      writexl::write_xlsx(x = list(
         "Project Information" = introinfo, 
         "Input Parameters" = suminputs, 
         "Weighting Function Adjustments" = weight4, 
@@ -1574,7 +1599,7 @@ server <- function(input, output, session) {
         "Threshold Isopleths Warnings" = step5warning,
         "Disclaimer and Notes" = DisclNote), 
         path = file, col_names = T, format_headers = T, use_zip64 = T)
-
+      
     }
   )
   
@@ -1724,7 +1749,7 @@ server <- function(input, output, session) {
   )
   
   ###***TAB WEIGHT####
-  output$weight2 <- renderDataTable({
+  output$weight2 <- DT::renderDataTable({
     MarineMammalHearingGroup<-matrix(data = c("Low-Frequency (LF) Cetaceans", "Baleen whales", 
                                               "Mid-Frequency (MF) Cetaceans", "Dolphins, toothed whales, beaked whales, bottlenose whales",
                                               "High-Frequency (HF) Cetaceans", "True porpoises, Kogia, river dolphins, <em>cephalorhynchid</em>, <em>Lagenorhynchus cruciger</em>, and <em>L. australis</em>", 
@@ -1745,14 +1770,14 @@ server <- function(input, output, session) {
     )
     colnames(MarineMammalHearingGroup1)<-c("Hearing Group", "Organisms", "Generalized Hearing Range*", 
                                            "Applicable Frequencies", "Non-Applicable Frequencies**")
-    return(datatable(MarineMammalHearingGroup1, 
+    return(DT::datatable(MarineMammalHearingGroup1, 
                      rownames = F, 
                      # caption = 'Table 1: Infromation about hearing groups.', 
                      escape = FALSE, 
                      options = list(pageLength = 26, dom = 'tip', dom='t',ordering=F, paging=F)))
   })   
   
-  output$weight5 <- renderDataTable({
+  output$weight5 <- DT::renderDataTable({
     infot10<-data.frame("Source"=c("Seismic", "Impact pile driving", "Vibratory pile driving*", "Drilling"),
                         "WFA (kHz)"=c(1, 2, 2.5, 2),
                         "Example Supporting Sources"=c("Breitzke et al. 2008; Tashmukhambetov et al. 2008; Tolstoy et al. 2009",
@@ -1761,7 +1786,7 @@ server <- function(input, output, session) {
                                                        "Greene 1987; Blackwell et al. 2004; Blackwell and Greene 2006")
     )
     colnames(infot10)<-c("Source", "Default WFA (kHz)", "References supporting default WFA")
-    return(datatable(infot10, 
+    return(DT::datatable(infot10, 
                      rownames = T, escape = FALSE, 
                      # catpion = 'Table 1: Suggested (default*) weighting factor adjustments (WFA). NMFS acknowledges default WFAs are likely conservative. *Limited data on spectra associated with down-the-hole drilling/hammering exists. Thus, the WFA for vibratory pile driving is recommended as a surrogate for this source.',
                      # caption = "Table 2: Suggested (default*) weighting factor adjustments (WFA), if input value is unknown for broadband Source:",
@@ -1826,7 +1851,7 @@ server <- function(input, output, session) {
     )
   }, deleteFile = FALSE)
   
-  output$weight3 <- renderDataTable({
+  output$weight3 <- DT::renderDataTable({
     MarineMammalHearingGroup<-matrix(data = c("Low-Frequency (LF) Cetaceans", 
                                               "Mid-Frequency (MF) Cetaceans", 
                                               "High-Frequency (HF) Cetaceans", 
@@ -1841,13 +1866,13 @@ server <- function(input, output, session) {
                                        "0 dB (to make unweighted)"))
     MarineMammalHearingGroup1<-as.data.frame(MarineMammalHearingGroup1)
     colnames(MarineMammalHearingGroup1)<-c("Hearing Group", "Applicable Frequencies")
-    return(datatable(MarineMammalHearingGroup1, 
+    return(DT::datatable(MarineMammalHearingGroup1, 
                      rownames = F, escape = FALSE, 
                      caption = 'Table 3: An example of the weighting function amplitude (dB).', 
                      options = list(pageLength = 26, dom = 'tip', dom='t',ordering=F, paging=F)))
   })
   
-  output$infot1 <- renderDataTable({
+  output$infot1 <- DT::renderDataTable({
     infot10<-data.frame("Source"=c("Seismic", "Impact pile driving", "Vibratory pile driving", "Drilling"),
                         "WFA (kHz)"=c(1, 2, 2.5, 2),
                         "Example Supporting Sources"=c("Breitzke et al. 2008; Tashmukhambetov et al. 2008; Tolstoy et al. 2009",
@@ -1856,13 +1881,13 @@ server <- function(input, output, session) {
                                                        "Greene 1987; Blackwell et al. 2004; Blackwell and Greene 2006")
     )
     colnames(infot10)<-c("Source", "WFA (kHz)", "Example Supporting Sources")
-    return(datatable(infot10, 
+    return(DT::datatable(infot10, 
                      rownames = T, escape = FALSE, 
                      options = list(pageLength = 26, dom = 'tip', dom='t',ordering=F)))
   })
   
   ######***TAB GLOSSARY########
-  output$gloss <- renderDataTable({
+  output$gloss <- DT::renderDataTable({
     
     gl<-matrix(data = c(
       "95% Frequency contour percentile", "Upper frequency below which 95% of total cumulative energy is contained (Charif et al. 2010).",
@@ -1903,13 +1928,13 @@ server <- function(input, output, session) {
       "Transmission Loss (TL)", "Reduction in a specified level between two specified points that are within an underwater acoustic field (ISO 2017). Note: Transmission loss is conceptually different from propagation loss (i.e., propagation loss is associated with the source level, while transmission loss is associated with a measurement at a specified distance)."), 
       ncol = 2, byrow = T)
     colnames(gl)<-c("Phrase", "Definition")
-    gl<-datatable(gl, options = list(pageLength = 50, dom = 'tip', dom='t',ordering=F, paging=F), 
+    gl<-DT::datatable(gl, options = list(pageLength = 50, dom = 'tip', dom='t',ordering=F, paging=F), 
                   rownames = FALSE,
                   # caption = 'Table 2: Defined terms used in web tool.', 
                   escape = FALSE)
   })
   
-  output$acronyms<-renderDataTable({
+  output$acronyms<-DT::renderDataTable({
     # ABBREVIATIONS, ACRONYMS, AND SYMBOLS
     ac<-matrix(data = c(
       # 'ANSI',	'American National Standards Institute',
@@ -1954,7 +1979,7 @@ server <- function(input, output, session) {
       'WFA',	'Weighting factor adjustments'), 
       ncol = 2, byrow = T)
     colnames(ac) = c('Abbreviation', 'Description')
-    ac<-datatable(ac, options = list(pageLength = 26, dom = 'tip', dom='t',ordering=F, paging=F), 
+    ac<-DT::datatable(ac, options = list(pageLength = 26, dom = 'tip', dom='t',ordering=F, paging=F), 
                   rownames = FALSE,
                   # caption = 'Table 1: Abbreviation used in web tool.', 
                   escape = FALSE)
@@ -2003,7 +2028,7 @@ server <- function(input, output, session) {
 
 ###### Run the application ####
 # app<-
-  #runApp(
+#runApp(
 shinyApp(ui = ui, server = server)
 #, launch.browser = TRUE)
 # app
