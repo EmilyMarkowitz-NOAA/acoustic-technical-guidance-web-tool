@@ -1,35 +1,21 @@
-#########INTRODUCTION###################
+# INTRODUCTION -----------------------------------------------------------------
 # Underwater Thresholds for Onset of Permanent and Temporary Threshold Shifts (Version 2.0)
 # Writtiten by Emily Markowitz
 # August 2020
-# platform       x86_64-w64-mingw32          
-# arch           x86_64                      
-# os             mingw32                     
-# system         x86_64, mingw32             
-# status                                     
-# major          4                           
-# minor          0.0                         
-# year           2020                        
-# month          04                          
-# day            24                          
-# svn rev        78286                       
-# language       R                           
-# version.string R version 4.0.0 (2020-04-24)
-# nickname       Arbor Day 
 # https://jmlondon.shinyapps.io/AcousticThresholds/
 
 
-###########PACKAGES###################
+# PACKAGES ---------------------------------------------------------------------
 # Need for running Shiny apps
 
-##########SOURCE DATA####################
+# SOURCE DATA ------------------------------------------------------------------
 source("Reference.R")
 
-####SHINYAPP()#####
+# SHINYAPP() -------------------------------------------------------------------
 ui <- fluidPage(
   #########***HEADER#########
   useShinyjs(),
-  extendShinyjs(text = jsCode1),
+  extendShinyjs(text = jsCode1, functions = c("backgroundCol")),
   theme = shinytheme("flatly"),
   # shinythemes::themeSelector(),
 
