@@ -1,8 +1,8 @@
 # Technical Guidance For Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing
 
-## Optional Web Calculator Tool 2018 Revision (Version 1.0)
-## Technical Guidance For Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing
-## NOAA Technical Memorandum NMFS-OPR-59
+### Optional Web Calculator Tool 2018 Revision (Version 1.0)
+### Technical Guidance For Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing
+### NOAA Technical Memorandum NMFS-OPR-59
 
 Find the app in action here: https://connect.fisheries.noaa.gov/acoustic-technical-guidance-web-tool/ 
 
