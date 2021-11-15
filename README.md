@@ -2,7 +2,9 @@
 # Technical Guidance For Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing
 # NOAA Technical Memorandum NMFS-OPR-59
 
-Find the app in action here: https://jmlondon.shinyapps.io/AcousticThresholds/
+Find the app in action here: https://connect.fisheries.noaa.gov/acoustic-technical-guidance-web-tool/ 
+
+Previously: https://jmlondon.shinyapps.io/AcousticThresholds/
 
 **Emily Markowitz** (Emily.Markowitz AT noaa.gov)
 

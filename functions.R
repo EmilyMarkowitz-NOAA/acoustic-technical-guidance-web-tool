@@ -61,16 +61,16 @@ PKG <- c(
   # "formattable",
 
   # knit r markdown documents
-  "knitr",
-  "markdown", # https://stackoverflow.com/questions/33499651/rmarkdown-in-shiny-application
+  # "knitr",
+  # "markdown", # https://stackoverflow.com/questions/33499651/rmarkdown-in-shiny-application
   "kableExtra",
   
   # Shiny Dev
   "shiny",
   "shinythemes",
   # "shinydashboard", 
-  "shinyjs"  # https://stackoverflow.com/questions/33807945/shiny-updateselectinput-for-multiple-inputs
-  # "shinyBS"
+  "shinyjs",  # https://stackoverflow.com/questions/33807945/shiny-updateselectinput-for-multiple-inputs
+  "shinyBS"
   # "V8",  
   # "shiny.router" # install.packages("shiny.router")  # devtools::install_github("Appsilon/shiny.router")
 )

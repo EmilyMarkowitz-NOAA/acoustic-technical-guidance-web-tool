@@ -12,15 +12,15 @@ ui <- fluidPage(
   #########***HEADER#########
   shinyjs::useShinyjs(),
   shinyjs::extendShinyjs(text = jsCode1, functions = c("backgroundCol")),
-  theme = shinytheme("flatly"),
+  theme = shinythemes::shinytheme("flatly"),
   # shinythemes::themeSelector(),
   
-  titlePanel(
+  shiny::titlePanel(
     windowTitle = "Marine Mammal Acoustic Technical Guidance (Web App) | NOAA Fisheries",
     title = tags$head(tags$link(rel="shortcut icon", 
                                 href="https://www.noaa.gov/sites/all/themes/custom/noaa/favicon.ico", 
                                 type="image/vnd.microsoft.icon"))), 
-  navbarPage(
+  shiny::navbarPage(
     title = imageOutput(outputId = "Image",width=1000/25,height=1000/25,
                         hover = "National Oceanic and Atmospheric Administration (NOAA)"),  #https://rdrr.io/cran/shiny/man/renderImage.html
     
@@ -38,27 +38,27 @@ ui <- fluidPage(
     # title = imageOutput(outputId = "Image",width=1000/25,height=1000/25,
     #                     hover = "National Oceanic and Atmospheric Administration (NOAA)"),  #https://rdrr.io/cran/shiny/man/renderImage.html
     # router_ui(),
-    # tabPanel(title = tags$ul(a(class = "item", href = route_link("Introduction"), "Introduction"))),
-    # tabPanel(title = tags$ul(a(class = "item", href = route_link("Calculator"), "Optional Calculator"))),
-    # tabPanel(title = tags$ul(a(class = "item", href = route_link("WFA"), "Weight Factor Adjustments (WFA)"))),
-    # tabPanel(title = tags$ul(a(class = "item", href = route_link("Gloss"), "Glossary and Literature Cited")))
+    # shiny::tabPanel(title = tags$ul(a(class = "item", href = route_link("Introduction"), "Introduction"))),
+    # shiny::tabPanel(title = tags$ul(a(class = "item", href = route_link("Calculator"), "Optional Calculator"))),
+    # shiny::tabPanel(title = tags$ul(a(class = "item", href = route_link("WFA"), "Weight Factor Adjustments (WFA)"))),
+    # shiny::tabPanel(title = tags$ul(a(class = "item", href = route_link("Gloss"), "Glossary and Literature Cited")))
     
     # PAGES --------------------------------------------------------------------
     
     # *** TAB CALCULATOR -------------------------------------------------------
     
     # Calculator0<-
-    tabPanel("Calculator",
+    shiny::tabPanel("Calculator",
              column(2,
-                    # tabPanel("PROJECT INFORMATION",
-                    wellPanel(
+                    # shiny::tabPanel("PROJECT INFORMATION",
+                    shiny::wellPanel(
                       # ***---STEP 1 -------------------------------------------
                       h4(strong("Step 1: PROJECT INFORMATION"),
                          tags$style(type = "text/css", "#q_step1 {vertical-align: top;}"),
-                         bsButton("q_step1", label = "", icon = icon("question"), style = "info", size = "extra-small")
+                         shinyBS::bsButton("q_step1", label = "", icon = icon("question"), style = "info", size = "extra-small")
                       ),
                       
-                      bsPopover(id = "q_step1", title = "Project Information",
+                      shinyBS::bsPopover(id = "q_step1", title = "Project Information",
                                 content = paste0("If the user needs more room to enter their responce, they may expand the extents of the text boxes by dragging the icon in the lower right corner of the box."
                                 ),
                                 placement = "right",
@@ -66,28 +66,28 @@ ui <- fluidPage(
                                 options = list(container = "body")
                       ),
                       
-                      textAreaInput(inputId = "Client",
+                      shiny::textAreaInput(inputId = "Client",
                                     label = "Project Title",
                                     value = "", rows = 5),
                       
-                      textAreaInput(inputId = "ProjectName",
+                      shiny::textAreaInput(inputId = "ProjectName",
                                     label = "Project Contact",
                                     value = "", rows = 5),
                       
-                      textAreaInput(inputId = "ProjectDescription",
+                      shiny::textAreaInput(inputId = "ProjectDescription",
                                     label = "Project/Source Information (Including Assumptions)",
                                     value = "", rows = 10)
                     )),
              # ***---STEP 2 -------------------------------------------
              column(2,
-                    wellPanel(
+                    shiny::wellPanel(
                       h4(strong("Step 2: SOUND SOURCE AND SOUND METRIC")),
                       
                       h5(strong("Sound Source"),
                          tags$style(type = "text/css", "#q_step2a {vertical-align: top;}"),
-                         bsButton("q_step2a", label = "", icon = icon("question"), style = "info", size = "extra-small")
+                         shinyBS::bsButton("q_step2a", label = "", icon = icon("question"), style = "info", size = "extra-small")
                       ),
-                      bsPopover(id = "q_step2a", title = "Sound Source/Category",
+                      shinyBS::bsPopover(id = "q_step2a", title = "Sound Source/Category",
                                 content = paste0("By clicking <i>Other</i> a new dropdown menu will appear with sound categories so you may choose the category of your sound."
                                 ),
                                 placement = "right",
@@ -101,9 +101,9 @@ ui <- fluidPage(
                       uiOutput("SoundCatagory"),
                       h5(strong("Source Level Metric for Calculating Cumulative Sound Exposure Level"),
                          tags$style(type = "text/css", "#q_step2b {vertical-align: top;}"),
-                         bsButton("q_step2b", label = "", icon = icon("question"), style = "info", size = "extra-small")
+                         shinyBS::bsButton("q_step2b", label = "", icon = icon("question"), style = "info", size = "extra-small")
                       ),
-                      bsPopover(id = "q_step2b", title = "Source Level Metric for Calculating Cumulative Sound Exposure Level",
+                      shinyBS::bsPopover(id = "q_step2b", title = "Source Level Metric for Calculating Cumulative Sound Exposure Level",
                                 content = paste0("For impulsive sound sources, the peak sound pressure level source level is also needed (Step 3)"),
                                 placement = "right",
                                 trigger = "focus",
@@ -114,13 +114,13 @@ ui <- fluidPage(
                       
                     ),
                     # ***---STEP 3 -------------------------------------------
-                    wellPanel(
+                    shiny::wellPanel(
                       h4(strong("Step 3: INCORPORATING AUDITORY WEIGHTING FUNCTIONS"),
                          tags$style(type = "text/css", "#q_step3 {vertical-align: top;}"),
-                         bsButton("q_step3", label = "", icon = icon("question"),
+                         shinyBS::bsButton("q_step3", label = "", icon = icon("question"),
                                   style = "info", size = "extra-small")),
                       
-                      bsPopover(id = "q_step3", title = "Incorporating Auditory Weighting Functions",
+                      shinyBS::bsPopover(id = "q_step3", title = "Incorporating Auditory Weighting Functions",
                                 content = paste0("Additional information associated with weighting  (i.e., user should provide additional information to support previous choice). For example, if able to provide 95% frequency contour or relying upon the source spectrum, the user should provide documentation supporting this decision."
                                 ),
                                 placement = "right",
@@ -136,13 +136,13 @@ ui <- fluidPage(
              ),
              # ***---STEP 4 -------------------------------------------
              column(2,
-                    wellPanel(
+                    shiny::wellPanel(
                       h4(strong("Step 4: THRESHOLD CALCULATION INPUTS"),
                          tags$style(type = "text/css", "#q_step4 {vertical-align: top;}"),
-                         bsButton("q_step4", label = "", icon = icon("question"), style = "info", size = "extra-small")
+                         shinyBS::bsButton("q_step4", label = "", icon = icon("question"), style = "info", size = "extra-small")
                       ),
                       
-                      bsPopover(id = "q_step4", title = "Threshold Calculation Inputs",
+                      shinyBS::bsPopover(id = "q_step4", title = "Threshold Calculation Inputs",
                                 content = paste0("Missing or incorrect values will be highlighted in orange. Once a acceptable value has been entered, the box field will no longer be highlighted. The range of acceptable values are noted by clicking and hovering over the input box. "
                                 ),
                                 placement = "right",
@@ -159,13 +159,13 @@ ui <- fluidPage(
                       uiOutput("ui9")#,
                     ),
                     # ***---STEP 5 -------------------------------------------
-                    wellPanel(
+                    shiny::wellPanel(
                       h4(strong("Step 5: WEIGHTING FUNCTION PARAMETERS"),
                          tags$style(type = "text/css", "#q_step5 {vertical-align: top;}"),
-                         bsButton("q_step5", label = "", icon = icon("question"), style = "info", size = "extra-small")
+                         shinyBS::bsButton("q_step5", label = "", icon = icon("question"), style = "info", size = "extra-small")
                       ),
                       
-                      bsPopover(id = "q_step5", title = "Weighting Function Parameters",
+                      shinyBS::bsPopover(id = "q_step5", title = "Weighting Function Parameters",
                                 content = paste0("Missing or incorrect values will be highlighted in orange. Once a acceptable value has been entered, the box field will no longer be highlighted. The range of acceptable values are noted by clicking and hovering over the input box. If using <i>multiple frequencies</i> and inputing individual adjustment values, the user does not have to enter a value for each population to recieve an output."
                                 ),
                                 placement = "right",
@@ -183,14 +183,14 @@ ui <- fluidPage(
              # *** TAB RESULTS -------------------------------------------
              column(6,
                     h2("Results"),
-                    wellPanel(style = "background-color: #c8e6f4; overflow-x:scroll", #https://www.google.com/search?q=color+%23ffffff&rlz=1C1PRFI_enUS731US731&oq=color+%23ffffff&aqs=chrome..69i57.3855j1j7&sourceid=chrome&ie=UTF-8
+                    shiny::wellPanel(style = "background-color: #c8e6f4; overflow-x:scroll", #https://www.google.com/search?q=color+%23ffffff&rlz=1C1PRFI_enUS731US731&oq=color+%23ffffff&aqs=chrome..69i57.3855j1j7&sourceid=chrome&ie=UTF-8
                               h4("WEIGHTING FUNCTION ADJUSTMENTS (dB)"),
                               # htmlOutput("weight3"),
                               dataTableOutput(outputId = "weight4"),
                               uiOutput("weight5warning")
                     ),
                     
-                    wellPanel(style = "background-color: #c8e6f4; overflow-x:scroll", #https://www.google.com/search?q=color+%23ffffff&rlz=1C1PRFI_enUS731US731&oq=color+%23ffffff&aqs=chrome..69i57.3855j1j7&sourceid=chrome&ie=UTF-8
+                    shiny::wellPanel(style = "background-color: #c8e6f4; overflow-x:scroll", #https://www.google.com/search?q=color+%23ffffff&rlz=1C1PRFI_enUS731US731&oq=color+%23ffffff&aqs=chrome..69i57.3855j1j7&sourceid=chrome&ie=UTF-8
                               h4("THRESHOLD ISOPLETHS RESULTS"),
                               p("Underwater Acoustic Thresholds"),
                               dataTableOutput(outputId = "text_calc"),
@@ -210,21 +210,21 @@ ui <- fluidPage(
     # *** TAB INTRO ------------------------------------------------------------
     
     # Introduction0 <-
-    tabPanel(title = "Introduction",
-             column(12,  wellPanel(
+    shiny::tabPanel(title = "Introduction",
+             column(12,  shiny::wellPanel(
                imageOutput(outputId = "ImageFull",width=600,height=144),
                h2("Optional Web Calculator Tool 2018 Revision (Version 1.0) to:"),
                h1(HTML("Technical Guidance For Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing")),
                h2(HTML("<i>NOAA Technical Memorandum NMFS-OPR-59</i>"))
              ),
-             wellPanel(
+             shiny::wellPanel(
                h3("Introduction"),
                p(HTML("NOAA's National Marine Fisheries Service (NMFS) recognizes that the permanent threshold shift (PTS) onset thresholds and marine mammal auditory weighting functions provided in the 2018 Revised Technical Guidance for Assessing the Effects of Anthropogenic Sound on Marine Mammal Hearing are more complex than NMFS' previous thresholds and that different action proponents may have different levels of modeling capabilities. Thus, NMFS has provided a companion optional Web Calculator tool for those action proponents unable to implement the 2018 Revised Technical Guidance's thresholds in the weighted cumulative sound exposure level (SEL<sub>cum</sub>) and peak sound pressure (PK) level metrics and the associated marine mammal auditory weighting functions.")
                ),
                br(),
                p(HTML("There is <i>no obligation</i> to use the <i>optional</i> Web Calculator tool. The use of more sophisticated exposure modeling or consideration of additional activity‐, source-, or location‐specific factors, if possible, is encouraged.")
                )
-             ), wellPanel(
+             ), shiny::wellPanel(
                h3("Using the Optional Web Calculator Tool"),
                br(),
                p("The optional Web Calculator Tool consists of four main Tabs provided as a ribbon at the top of this and all tabs:"
@@ -247,13 +247,13 @@ ui <- fluidPage(
                  tags$li(HTML("<b>Weight Factor Adjustments (WFA)</b>: Tab that provides more information on using Weighting Factor Adjustments (WFA) used to incorporate weighting functions* in to isopleth calculations.")),
                  tags$li(HTML("<b>Glossary and Literature Cited</b>: Tab that provides a list of abbreviations and glossary terms found in the optional Web Calculator Tool. It also provides a list of literature cited."))
                )
-             ), wellPanel(
+             ), shiny::wellPanel(
                h3("Marine Mammal Hearing Groups"),
                dataTableOutput(outputId = "marinemammalhearinggroups"),
                br(),
                em(HTML("*WFAs consider marine mammal auditory weighting functions by focusing on a single frequency for those who cannot fully apply auditory weighting functions associated with the SEL<sub>cum</sub> metric thresholds.")
                )
-             ), wellPanel(
+             ), shiny::wellPanel(
                h3("NMFS also provides a User Manual for the optional Web Calculator Tool (see links below)."),
                p(a("NOAA Technical Guidance Web Site",
                    href="https://www.fisheries.noaa.gov/national/marine-mammal-protection/marine-mammal-acoustic-technical-guidance",
@@ -268,7 +268,7 @@ ui <- fluidPage(
                #     href="https://www.fisheries.noaa.gov/webdam/download/75963097",
                #     target="_blank"))
                
-             ), wellPanel(
+             ), shiny::wellPanel(
                h3("Note:"),
                p("This Web Calculator provides a means to estimates distances associated with the Technical Guidance's PTS onset thresholds. Mitigation and monitoring requirements associated with a Marine Mammal Protection Act (MMPA) authorization or an Endangered Species Act (ESA) consultation or permit are independent management decisions made in the context of the proposed activity and comprehensive effects analysis, and are beyond the scope of the Technical Guidance and the Web Calculator."
                ),
@@ -283,8 +283,8 @@ ui <- fluidPage(
     
     # *** TAB WEIGHT -------------------------------------------
     # WFA0<-
-    tabPanel("Weight Factor Adjustments (WFA)",
-             column(12, wellPanel(
+    shiny::tabPanel("Weight Factor Adjustments (WFA)",
+             column(12, shiny::wellPanel(
                h2("Suggested Broadband WFAs"),
                br(),
                p("Table 1: Suggested (default*) weighting factor adjustments (WFA). NMFS acknowledges default WFAs are likely conservative."),
@@ -298,20 +298,20 @@ ui <- fluidPage(
     # *** TAB GLOSSARY AND LITERATUre CITED -------------------------------------------
 
     # Gloss0<-
-    tabPanel("Glossary and Literature Cited",
+    shiny::tabPanel("Glossary and Literature Cited",
              h1("Abbreviations, Acronyms, Symbols, and Glossary"),
-             column(3, wellPanel(
+             column(3, shiny::wellPanel(
                
                h3("Abbreviations"),
                dataTableOutput("acronyms")
              )),
-             column(9, wellPanel(
+             column(9, shiny::wellPanel(
                
                h3("Glossary"),
                dataTableOutput("gloss")
              )),
              
-             column(12, wellPanel(
+             column(12, shiny::wellPanel(
                h3("Literature Cited"),
                tableOutput("infot2")
              ))
@@ -616,9 +616,9 @@ server <- function(input, output, session) {
   # output$ui1_info <- renderUI({
   #   # h4(V1,
   #   #    tags$style(type = "text/css", "#q5 {vertical-align: top;}"),
-  #   #    bsButton("q5", label = "", icon = icon("question"),
+  #   #    shinyBS::bsButton("q5", label = "", icon = icon("question"),
   #   #             style = "info", size = "extra-small")),
-  #   bsPopover(id = "q5", title = "WFA",
+  #   shinyBS::bsPopover(id = "q5", title = "WFA",
   #             content = paste0("Broadband: 95% frequency contour percentile (kHz) OR Narrowband: frequency (kHz)."),
   #             placement = "right",
   #             trigger = "focus",
@@ -626,7 +626,7 @@ server <- function(input, output, session) {
   # })
   
   # output$ui1_info <- renderUI({
-  #   bsPopover(id = "q5", title = "WFA",
+  #   shinyBS::bsPopover(id = "q5", title = "WFA",
   #             content = "Broadband: 95% frequency contour percentile (kHz) OR Narrowband: frequency (kHz).",
   #             placement = "right",
   #             trigger = "focus",
